@@ -1,0 +1,2 @@
+[console_scripts]
+fak-log-analyzer = fak_log_analyzer.cli:main

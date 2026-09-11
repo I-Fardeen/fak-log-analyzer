@@ -1,0 +1,17 @@
+LICENSE
+README.md
+pyproject.toml
+src/fak_log_analyzer/__init__.py
+src/fak_log_analyzer/analyzer.py
+src/fak_log_analyzer/cli.py
+src/fak_log_analyzer/models.py
+src/fak_log_analyzer/parser.py
+src/fak_log_analyzer/report.py
+src/fak_log_analyzer.egg-info/PKG-INFO
+src/fak_log_analyzer.egg-info/SOURCES.txt
+src/fak_log_analyzer.egg-info/dependency_links.txt
+src/fak_log_analyzer.egg-info/entry_points.txt
+src/fak_log_analyzer.egg-info/requires.txt
+src/fak_log_analyzer.egg-info/top_level.txt
+tests/test_analyzer.py
+tests/test_parser.py
