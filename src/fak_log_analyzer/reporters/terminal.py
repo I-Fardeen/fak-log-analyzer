@@ -49,6 +49,64 @@ class TerminalReporter(Reporter):
 
         console.print(summary)
 
+        time_stats = result.time_stats
+
+        time_table = Table(title="Time Analysis")
+
+        time_table.add_column("Metric")
+        time_table.add_column("Value", justify="right")
+
+        time_table.add_row(
+            "Start time",
+            (time_stats.start_time.isoformat() if time_stats.start_time else "N/A"),
+        )
+        time_table.add_row(
+            "End time",
+            (time_stats.end_time.isoformat() if time_stats.end_time else "N/A"),
+        )
+        time_table.add_row(
+            "Duration",
+            f"{time_stats.duration_seconds:.2f} seconds",
+        )
+        time_table.add_row(
+            "Requests per minute",
+            f"{time_stats.requests_per_minute:.2f}",
+        )
+        time_table.add_row(
+            "Requests per hour",
+            f"{time_stats.requests_per_hour:.2f}",
+        )
+        peak_timestamp, peak_requests = result.peak_traffic
+
+        time_table.add_row(
+            "Peak traffic",
+            (
+                f"{peak_requests} requests at "
+                f"{peak_timestamp.strftime('%Y-%m-%d %H:%M')}"
+                if peak_timestamp
+                else "N/A"
+            ),
+        )
+        time_table.add_row(
+            "Traffic trend",
+            result.traffic_trend,
+        )
+
+        console.print(time_table)
+
+        traffic = Table(title="Requests Per Minute")
+
+        traffic.add_column("Time")
+        traffic.add_column("Requests", justify="right")
+
+        for timestamp, count in result.requests_per_minute.items():
+            traffic.add_row(
+                timestamp.strftime("%Y-%m-%d %H:%M"),
+                str(count),
+            )
+
+        console.print(traffic)
+
         methods = Table(title="HTTP Methods")
         methods.add_column("Method")
         methods.add_column("Requests", justify="right")

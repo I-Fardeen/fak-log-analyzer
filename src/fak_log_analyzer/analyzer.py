@@ -4,6 +4,10 @@ from collections import Counter
 from collections.abc import Iterable
 
 from fak_log_analyzer.models import AnalysisResult, LogEntry
+from fak_log_analyzer.time_analysis import (
+    calculate_requests_per_minute,
+    calculate_time_stats,
+)
 
 
 def analyze(
@@ -20,6 +24,8 @@ def analyze(
     path_counts = Counter(entry.path for entry in entries)
 
     total_bytes = sum(entry.response_size for entry in entries)
+    time_stats = calculate_time_stats(entries)
+    requests_per_minute = calculate_requests_per_minute(entries)
 
     return AnalysisResult(
         total_requests=len(entries),
@@ -28,5 +34,7 @@ def analyze(
         ip_counts=ip_counts,
         path_counts=path_counts,
         total_bytes=total_bytes,
+        time_stats=time_stats,
+        requests_per_minute=requests_per_minute,
         malformed_lines=malformed_lines,
     )

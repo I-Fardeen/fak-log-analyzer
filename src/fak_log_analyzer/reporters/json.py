@@ -16,6 +16,8 @@ class JsonReporter(Reporter):
     ) -> str:
         """Render the analysis result as JSON."""
 
+        time_stats = result.time_stats
+
         data = {
             "summary": {
                 "total_requests": result.total_requests,
@@ -24,6 +26,32 @@ class JsonReporter(Reporter):
                 "average_response_size": result.average_response_size,
                 "error_count": result.error_count,
                 "error_rate": result.error_rate,
+            },
+            "time": {
+                "start_time": (
+                    time_stats.start_time.isoformat() if time_stats.start_time else None
+                ),
+                "end_time": (
+                    time_stats.end_time.isoformat() if time_stats.end_time else None
+                ),
+                "duration_seconds": time_stats.duration_seconds,
+                "requests_per_minute": time_stats.requests_per_minute,
+                "requests_per_hour": time_stats.requests_per_hour,
+            },
+            "traffic": {
+                "requests_per_minute": {
+                    timestamp.isoformat(): count
+                    for timestamp, count in result.requests_per_minute.items()
+                },
+                "peak": {
+                    "timestamp": (
+                        result.peak_traffic[0].isoformat()
+                        if result.peak_traffic[0]
+                        else None
+                    ),
+                    "requests": result.peak_traffic[1],
+                },
+                "trend": result.traffic_trend,
             },
             "methods": dict(result.method_counts),
             "status_codes": {

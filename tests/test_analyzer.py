@@ -1,6 +1,6 @@
 """Tests for the log analyzer."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fak_log_analyzer.analyzer import analyze
 from fak_log_analyzer.models import LogEntry
@@ -12,11 +12,15 @@ def create_entry(
     path: str,
     status: int,
     size: int,
+    timestamp: datetime | None = None,
 ) -> LogEntry:
     """Create a test log entry."""
+    if timestamp is None:
+        timestamp = datetime.now(timezone.utc)
+
     return LogEntry(
         ip_address=ip,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=timestamp,
         method=method,
         path=path,
         protocol="HTTP/1.1",
@@ -120,3 +124,324 @@ def test_empty_analysis():
     assert result.error_count == 0
     assert result.error_rate == 0.0
     assert result.average_response_size == 0.0
+
+
+def test_time_stats_are_included():
+    """Analyzer should include time statistics in the result."""
+    entries = [
+        LogEntry(
+            ip_address="10.0.0.1",
+            timestamp=datetime(
+                2026,
+                9,
+                11,
+                10,
+                0,
+                tzinfo=timezone.utc,
+            ),
+            method="GET",
+            path="/",
+            protocol="HTTP/1.1",
+            status_code=200,
+            response_size=100,
+        ),
+        LogEntry(
+            ip_address="10.0.0.2",
+            timestamp=datetime(
+                2026,
+                9,
+                11,
+                10,
+                2,
+                tzinfo=timezone.utc,
+            ),
+            method="GET",
+            path="/api",
+            protocol="HTTP/1.1",
+            status_code=200,
+            response_size=200,
+        ),
+    ]
+
+    result = analyze(entries)
+
+    assert result.time_stats.start_time == entries[0].timestamp
+    assert result.time_stats.end_time == entries[1].timestamp
+    assert result.time_stats.duration_seconds == 120
+
+
+def test_peak_traffic():
+    """Peak traffic should return the busiest minute."""
+    start = datetime(
+        2026,
+        9,
+        11,
+        10,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    entries = [
+        create_entry(
+            "192.168.1.1",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.2",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(seconds=10),
+        ),
+        create_entry(
+            "192.168.1.3",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+        create_entry(
+            "192.168.1.4",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1, seconds=10),
+        ),
+        create_entry(
+            "192.168.1.5",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1, seconds=20),
+        ),
+    ]
+
+    result = analyze(entries)
+
+    peak_time, peak_count = result.peak_traffic
+
+    assert peak_time == start + timedelta(minutes=1)
+    assert peak_count == 3
+
+
+def test_traffic_trend():
+    """Traffic trend should be classified correctly."""
+    start = datetime(
+        2026,
+        9,
+        11,
+        10,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    entries = [
+        create_entry(
+            "192.168.1.1",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.2",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+        create_entry(
+            "192.168.1.3",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+        create_entry(
+            "192.168.1.4",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+    ]
+
+    result = analyze(entries)
+
+    assert result.traffic_trend == "increasing"
+
+
+def test_traffic_trend_increasing():
+    """Traffic trend should detect increasing traffic."""
+    start = datetime(
+        2026,
+        9,
+        11,
+        10,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    entries = [
+        create_entry(
+            "192.168.1.1",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.2",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+        create_entry(
+            "192.168.1.3",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+    ]
+
+    result = analyze(entries)
+
+    assert result.traffic_trend == "increasing"
+
+
+def test_traffic_trend_decreasing():
+    """Traffic trend should detect decreasing traffic."""
+    start = datetime(
+        2026,
+        9,
+        11,
+        10,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    entries = [
+        create_entry(
+            "192.168.1.1",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.2",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.3",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.4",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+    ]
+
+    result = analyze(entries)
+
+    assert result.traffic_trend == "decreasing"
+
+
+def test_traffic_trend_stable():
+    """Traffic trend should detect stable traffic."""
+    start = datetime(
+        2026,
+        9,
+        11,
+        10,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    entries = [
+        create_entry(
+            "192.168.1.1",
+            "GET",
+            "/",
+            200,
+            100,
+            start,
+        ),
+        create_entry(
+            "192.168.1.2",
+            "GET",
+            "/",
+            200,
+            100,
+            start + timedelta(minutes=1),
+        ),
+    ]
+
+    result = analyze(entries)
+
+    assert result.traffic_trend == "stable"
+
+
+def test_traffic_trend_with_single_bucket():
+    """Traffic trend should be stable with one time bucket."""
+    timestamp = datetime(
+        2026,
+        9,
+        11,
+        10,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    entries = [
+        create_entry(
+            "192.168.1.1",
+            "GET",
+            "/",
+            200,
+            100,
+            timestamp,
+        ),
+        create_entry(
+            "192.168.1.2",
+            "GET",
+            "/",
+            200,
+            100,
+            timestamp + timedelta(seconds=20),
+        ),
+    ]
+
+    result = analyze(entries)
+
+    assert result.traffic_trend == "stable"

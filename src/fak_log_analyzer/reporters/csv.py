@@ -18,7 +18,6 @@ class CsvReporter(Reporter):
         """Render the analysis result as CSV."""
 
         output = io.StringIO()
-
         writer = csv.writer(output)
 
         writer.writerow(["category", "name", "value"])
@@ -35,6 +34,74 @@ class CsvReporter(Reporter):
         )
         writer.writerow(["summary", "error_count", result.error_count])
         writer.writerow(["summary", "error_rate", result.error_rate])
+
+        time_stats = result.time_stats
+
+        writer.writerow(
+            [
+                "time",
+                "start_time",
+                (time_stats.start_time.isoformat() if time_stats.start_time else ""),
+            ]
+        )
+        writer.writerow(
+            [
+                "time",
+                "end_time",
+                (time_stats.end_time.isoformat() if time_stats.end_time else ""),
+            ]
+        )
+        writer.writerow(
+            [
+                "time",
+                "duration_seconds",
+                time_stats.duration_seconds,
+            ]
+        )
+        writer.writerow(
+            [
+                "time",
+                "requests_per_minute",
+                time_stats.requests_per_minute,
+            ]
+        )
+        for timestamp, count in result.requests_per_minute.items():
+            writer.writerow(
+                [
+                    "traffic",
+                    timestamp.isoformat(),
+                    count,
+                ]
+            )
+        peak_timestamp, peak_requests = result.peak_traffic
+        writer.writerow(
+            [
+                "traffic_peak",
+                "timestamp",
+                (peak_timestamp.isoformat() if peak_timestamp else ""),
+            ]
+        )
+        writer.writerow(
+            [
+                "traffic_peak",
+                "requests",
+                peak_requests,
+            ]
+        )
+        writer.writerow(
+            [
+                "traffic",
+                "trend",
+                result.traffic_trend,
+            ]
+        )
+        writer.writerow(
+            [
+                "time",
+                "requests_per_hour",
+                time_stats.requests_per_hour,
+            ]
+        )
 
         for method, count in result.method_counts.most_common():
             writer.writerow(["method", method, count])

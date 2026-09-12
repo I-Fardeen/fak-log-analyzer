@@ -19,6 +19,17 @@ class LogEntry:
 
 
 @dataclass
+class TimeStats:
+    """Represent time-based statistics for analyzed log entries."""
+
+    start_time: datetime | None
+    end_time: datetime | None
+    duration_seconds: float
+    requests_per_minute: float
+    requests_per_hour: float
+
+
+@dataclass
 class AnalysisResult:
     """Represent the results of analyzing a collection of log entries."""
 
@@ -28,6 +39,8 @@ class AnalysisResult:
     ip_counts: Counter[str]
     path_counts: Counter[str]
     total_bytes: int
+    time_stats: TimeStats
+    requests_per_minute: dict[datetime, int]
     malformed_lines: int = 0
 
     @property
@@ -52,6 +65,38 @@ class AnalysisResult:
             return 0.0
 
         return self.total_bytes / self.total_requests
+
+    @property
+    def peak_traffic(self) -> tuple[datetime | None, int]:
+        """Return the busiest minute and its request count."""
+        if not self.requests_per_minute:
+            return None, 0
+
+        timestamp, count = max(
+            self.requests_per_minute.items(),
+            key=lambda item: item[1],
+        )
+
+        return timestamp, count
+
+    @property
+    def traffic_trend(self) -> str:
+        """Return the overall traffic trend."""
+        counts = list(self.requests_per_minute.values())
+
+        if len(counts) < 2:
+            return "stable"
+
+        first = counts[0]
+        last = counts[-1]
+
+        if last > first:
+            return "increasing"
+
+        if last < first:
+            return "decreasing"
+
+        return "stable"
 
 
 @dataclass
