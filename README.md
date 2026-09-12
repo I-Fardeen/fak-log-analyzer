@@ -42,155 +42,42 @@ For development:
 pip install -e ".[dev]"
 ```
 
-## Usage
+## Command-Line Usage
 
-### Basic Analysis
+FAK Log Analyzer is designed as a lightweight command-line tool for analyzing web server access logs.
 
-Analyze a log file:
+### Basic Usage
+
+```bash
+fak-log-analyzer <logfile>
+```
+
+Example:
 
 ```bash
 fak-log-analyzer tests/sample.log
 ```
 
-### Limit Top IP Addresses
-
-```bash
-fak-log-analyzer tests/sample.log --top-ips 5
-```
-
-### Limit Top Requested Paths
-
-```bash
-fak-log-analyzer tests/sample.log --top-paths 5
-```
-
-Both options can be used together:
-
-```bash
-fak-log-analyzer tests/sample.log --top-ips 5 --top-paths 5
-```
-
-## Output Formats
-
-FAK Log Analyzer currently supports three output formats:
-
-| Format     | Terminal | File |
-| ---------- | -------: | ---: |
-| `terminal` |      Yes |   No |
-| `json`     |      Yes |  Yes |
-| `csv`      |      Yes |  Yes |
-
-### Terminal
-
-The default format uses Rich to display a readable terminal report:
-
-```bash
-fak-log-analyzer tests/sample.log
-```
-
-### JSON
-
-Generate JSON output:
-
-```bash
-fak-log-analyzer tests/sample.log --format json
-```
-
-### CSV
-
-Generate CSV output:
-
-```bash
-fak-log-analyzer tests/sample.log --format csv
-```
-
-### Save JSON to a File
-
-```bash
-fak-log-analyzer tests/sample.log \
-  --format json \
-  --output report.json
-```
-
-### Save CSV to a File
-
-```bash
-fak-log-analyzer tests/sample.log \
-  --format csv \
-  --output report.csv
-```
-
-The terminal format cannot currently be written using `--output`.
-
-## Analysis Metrics
-
-The analyzer currently reports:
+By default, the analyzer displays a human-readable terminal report containing:
 
 * Total requests
-* Malformed lines
+* Malformed log lines
 * Total response bytes
 * Average response size
-* Error count
-* Error rate
+* HTTP error count
+* HTTP error rate
+* Log start and end time
+* Analysis duration
+* Requests per minute
+* Requests per hour
+* Peak traffic
+* Traffic trend
 * HTTP method distribution
 * HTTP status-code distribution
 * Top IP addresses
 * Top requested paths
 
-HTTP responses with status codes `400` and above are counted as errors.
-
-## Supported Log Format
-
-The current parser supports Apache/Common Log Format.
-
-Example:
-
-```text
-192.168.1.10 - - [11/Sep/2026:10:15:32 +0530] "GET /index.html HTTP/1.1" 200 1532
-```
-
-The parser extracts the following fields:
-
-| Field          | Example                      |
-| -------------- | ---------------------------- |
-| IP address     | `192.168.1.10`               |
-| Timestamp      | `11/Sep/2026:10:15:32 +0530` |
-| HTTP method    | `GET`                        |
-| Requested path | `/index.html`                |
-| Protocol       | `HTTP/1.1`                   |
-| Status code    | `200`                        |
-| Response size  | `1532`                       |
-
-Malformed non-empty lines are skipped and counted in the report.
-
-Blank lines are ignored.
-
-## Example
-
-Given a log file containing:
-
-```text
-192.168.1.10 - - [11/Sep/2026:10:15:32 +0530] "GET /index.html HTTP/1.1" 200 1532
-192.168.1.11 - - [11/Sep/2026:10:15:35 +0530] "GET /style.css HTTP/1.1" 200 821
-192.168.1.10 - - [11/Sep/2026:10:15:40 +0530] "GET /missing.html HTTP/1.1" 404 512
-```
-
-FAK Log Analyzer parses each request and aggregates the information into a report.
-
-Example terminal output:
-
-```text
-Summary
-────────────────────────────────
-Total requests             3
-Malformed lines            0
-Total response bytes       2,865
-Average response size      955.00 bytes
-Error count                1
-Error rate                 33.33%
-```
-
-## Command-Line Reference
+### Command-Line Options
 
 ```text
 usage: fak-log-analyzer [-h] [--top-ips TOP_IPS] [--top-paths TOP_PATHS]
@@ -198,15 +85,140 @@ usage: fak-log-analyzer [-h] [--top-ips TOP_IPS] [--top-paths TOP_PATHS]
                         logfile
 ```
 
-### Arguments
+#### Positional Arguments
 
-| Argument          | Description                                 |
-| ----------------- | ------------------------------------------- |
-| `logfile`         | Path to the log file to analyze             |
-| `--top-ips N`     | Number of top IP addresses to display       |
-| `--top-paths N`   | Number of top requested paths to display    |
-| `--format FORMAT` | Output format: `terminal`, `json`, or `csv` |
-| `--output FILE`   | Write JSON or CSV output to a file          |
+| Argument  | Description                                |
+| --------- | ------------------------------------------ |
+| `logfile` | Path to the web server log file to analyze |
+
+#### Options
+
+| Option            | Description                                                   | Default    |
+| ----------------- | ------------------------------------------------------------- | ---------- |
+| `-h`, `--help`    | Show the command-line help message                            | —          |
+| `--top-ips N`     | Display the top N IP addresses                                | `10`       |
+| `--top-paths N`   | Display the top N requested paths                             | `10`       |
+| `--format FORMAT` | Select the output format: `terminal`, `json`, or `csv`        | `terminal` |
+| `--output FILE`   | Write JSON or CSV output to a file instead of standard output | —          |
+
+### Examples
+
+#### Analyze a log file
+
+```bash
+fak-log-analyzer access.log
+```
+
+#### Show the top 5 IP addresses
+
+```bash
+fak-log-analyzer access.log --top-ips 5
+```
+
+#### Show the top 20 requested paths
+
+```bash
+fak-log-analyzer access.log --top-paths 20
+```
+
+#### Generate JSON output
+
+```bash
+fak-log-analyzer access.log --format json
+```
+
+#### Generate CSV output
+
+```bash
+fak-log-analyzer access.log --format csv
+```
+
+#### Save a JSON report
+
+```bash
+fak-log-analyzer access.log \
+    --format json \
+    --output report.json
+```
+
+#### Save a CSV report
+
+```bash
+fak-log-analyzer access.log \
+    --format csv \
+    --output report.csv
+```
+
+> **Note:** The terminal format is intended for interactive display and cannot be written to a file using `--output`. Use JSON or CSV when a report needs to be saved or processed by another tool.
+
+### Traffic Analysis
+
+Version 0.3.0 introduces time- and traffic-oriented analysis.
+
+The analyzer groups requests into one-minute buckets and reports the resulting traffic distribution:
+
+```text
+10:15 → 3 requests
+10:16 → 3 requests
+10:17 → 3 requests
+10:18 → 1 request
+```
+
+It also identifies the busiest minute:
+
+```text
+Peak traffic → 3 requests at 2026-09-11 10:15
+```
+
+and classifies the overall traffic trend as:
+
+* `increasing`
+* `decreasing`
+* `stable`
+
+These traffic metrics are available through the terminal, JSON, and CSV reporters.
+
+### Output Formats
+
+#### Terminal
+
+Designed for human-readable interactive analysis:
+
+```bash
+fak-log-analyzer access.log
+```
+
+#### JSON
+
+Designed for APIs, automation, scripting, and machine processing:
+
+```bash
+fak-log-analyzer access.log --format json
+```
+
+The JSON report contains structured sections for:
+
+```text
+summary
+time
+traffic
+methods
+status_codes
+top_ips
+top_paths
+```
+
+Traffic data includes both per-minute request counts and peak traffic information.
+
+#### CSV
+
+Designed for spreadsheets, data analysis, and downstream processing:
+
+```bash
+fak-log-analyzer access.log --format csv
+```
+
+CSV output contains categorized records for summary statistics, time analysis, traffic data, methods, status codes, IP addresses, and requested paths.
 
 ## Project Structure
 
