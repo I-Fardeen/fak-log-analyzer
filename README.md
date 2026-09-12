@@ -322,11 +322,15 @@ The project includes unit tests covering:
 
 ## Roadmap
 
-### v0.3
+### v0.3 — Time & Traffic Analytics
 
-* HTML reports
-* Improved report presentation
-* More detailed request statistics
+- Time-range analysis
+- Requests-per-minute and requests-per-hour metrics
+- Traffic distribution by minute
+- Peak traffic detection
+- Traffic trend classification
+- Enhanced terminal, JSON, and CSV reporting
+
 
 ### v0.4
 

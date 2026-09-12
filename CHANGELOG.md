@@ -4,6 +4,25 @@ All notable changes to FAK Log Analyzer are documented in this file.
 
 The format follows the general principles of [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.0] - 2026-09-12
+
+### Added
+
+- Time-based log analysis with start time, end time, and duration.
+- Requests-per-minute and requests-per-hour metrics.
+- Per-minute traffic distribution.
+- Peak traffic detection.
+- Traffic trend classification.
+- Peak traffic and trend information in terminal, JSON, and CSV reports.
+
+### Improved
+
+- Terminal reports now include peak traffic and traffic trend.
+- JSON reports expose structured traffic analytics.
+- CSV reports include traffic analytics suitable for further processing.
+- Expanded test coverage for time and traffic analysis.
+
+
 ## [0.2.0] - 2026-09-12
 
 ### Added
