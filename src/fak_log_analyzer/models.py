@@ -52,3 +52,11 @@ class AnalysisResult:
             return 0.0
 
         return self.total_bytes / self.total_requests
+
+
+@dataclass
+class ReportConfig:
+    """Configure how analysis results are displayed."""
+
+    top_ips: int = 10
+    top_paths: int = 10
