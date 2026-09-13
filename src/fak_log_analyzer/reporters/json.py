@@ -19,6 +19,47 @@ class JsonReporter(Reporter):
 
         time_stats = result.time_stats
         peak_timestamp, peak_requests = result.peak_traffic
+        performance = result.performance_stats
+
+        if performance and performance.available:
+            performance_data = {
+                "available": True,
+                "requests_with_latency": performance.requests_with_latency,
+                "latency_coverage": performance.latency_coverage,
+                "min_response_time_ms": (performance.min_response_time_ms),
+                "max_response_time_ms": (performance.max_response_time_ms),
+                "average_response_time_ms": (performance.average_response_time_ms),
+                "median_response_time_ms": (performance.median_response_time_ms),
+                "p50_response_time_ms": (performance.p50_response_time_ms),
+                "p90_response_time_ms": (performance.p90_response_time_ms),
+                "p95_response_time_ms": (performance.p95_response_time_ms),
+                "p99_response_time_ms": (performance.p99_response_time_ms),
+            }
+        else:
+            performance_data = {
+                "available": False,
+                "requests_with_latency": 0,
+                "latency_coverage": 0.0,
+                "min_response_time_ms": None,
+                "max_response_time_ms": None,
+                "average_response_time_ms": None,
+                "median_response_time_ms": None,
+                "p50_response_time_ms": None,
+                "p90_response_time_ms": None,
+                "p95_response_time_ms": None,
+                "p99_response_time_ms": None,
+            }
+
+        path_performance = {
+            path: {
+                "requests": stats.request_count,
+                "average_ms": stats.average_ms,
+                "median_ms": stats.median_ms,
+                "p95_ms": stats.p95_ms,
+                "max_ms": stats.max_ms,
+            }
+            for path, stats in list(result.path_performance.items())[: config.top_paths]
+        }
 
         data = {
             "summary": {
@@ -53,6 +94,8 @@ class JsonReporter(Reporter):
                 },
                 "trend": result.traffic_trend,
             },
+            "performance": performance_data,
+            "performance_hotspots": path_performance,
             "methods": dict(result.method_counts),
             "status_codes": {
                 str(status): count for status, count in result.status_counts.items()

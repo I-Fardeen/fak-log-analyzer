@@ -40,7 +40,10 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
             )
         ]
 
+    # ------------------------------------------------------------------
     # Overall error rate
+    # ------------------------------------------------------------------
+
     if result.error_rate >= 50:
         findings.append(
             Finding(
@@ -80,7 +83,10 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
             )
         )
 
+    # ------------------------------------------------------------------
     # Server-side failures
+    # ------------------------------------------------------------------
+
     server_errors = sum(
         count for status, count in result.status_counts.items() if 500 <= status < 600
     )
@@ -102,7 +108,10 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
             )
         )
 
+    # ------------------------------------------------------------------
     # Error path hotspots
+    # ------------------------------------------------------------------
+
     for path, count in result.error_path_counts.most_common():
         if count < 3:
             break
@@ -118,7 +127,10 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
             )
         )
 
-    # Error IP hotspots
+    # ------------------------------------------------------------------
+    # Error-producing IP hotspots
+    # ------------------------------------------------------------------
+
     for ip, count in result.error_ip_counts.most_common():
         if count < 3:
             break
@@ -134,7 +146,69 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
             )
         )
 
+    # ------------------------------------------------------------------
+    # Performance intelligence
+    # ------------------------------------------------------------------
+
+    performance = result.performance_stats
+
+    if performance is not None and performance.available:
+        p95 = performance.p95_response_time_ms
+
+        if p95 is not None:
+            if p95 >= 1000:
+                findings.append(
+                    Finding(
+                        severity=Severity.HIGH,
+                        category="latency",
+                        title="High response latency",
+                        message=(f"Overall P95 response time is {p95:.2f} ms."),
+                    )
+                )
+            elif p95 >= 500:
+                findings.append(
+                    Finding(
+                        severity=Severity.MEDIUM,
+                        category="latency",
+                        title="Elevated response latency",
+                        message=(f"Overall P95 response time is {p95:.2f} ms."),
+                    )
+                )
+
+        # Endpoint-level latency findings.
+        for path, stats in result.path_performance.items():
+            # Avoid declaring a single slow request an endpoint-level
+            # performance problem.
+            if stats.request_count < 2:
+                continue
+
+            if stats.p95_ms >= 1000:
+                findings.append(
+                    Finding(
+                        severity=Severity.HIGH,
+                        category="latency_path",
+                        title="Very slow endpoint detected",
+                        message=(
+                            f"{path} has a P95 response time of {stats.p95_ms:.2f} ms."
+                        ),
+                    )
+                )
+            elif stats.p95_ms >= 500:
+                findings.append(
+                    Finding(
+                        severity=Severity.MEDIUM,
+                        category="latency_path",
+                        title="Slow endpoint detected",
+                        message=(
+                            f"{path} has a P95 response time of {stats.p95_ms:.2f} ms."
+                        ),
+                    )
+                )
+
+    # ------------------------------------------------------------------
     # Traffic trend
+    # ------------------------------------------------------------------
+
     if result.traffic_trend == "increasing":
         findings.append(
             Finding(
@@ -159,6 +233,10 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
                 ),
             )
         )
+
+    # ------------------------------------------------------------------
+    # Severity ordering
+    # ------------------------------------------------------------------
 
     severity_order = {
         Severity.HIGH: 0,

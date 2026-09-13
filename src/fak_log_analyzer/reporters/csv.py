@@ -109,6 +109,124 @@ class CsvReporter(Reporter):
             ]
         )
 
+        performance = result.performance_stats
+
+        if performance and performance.available:
+            writer.writerow(
+                [
+                    "performance",
+                    "available",
+                    True,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "requests_with_latency",
+                    performance.requests_with_latency,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "latency_coverage",
+                    performance.latency_coverage,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "min_response_time_ms",
+                    performance.min_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "max_response_time_ms",
+                    performance.max_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "average_response_time_ms",
+                    performance.average_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "median_response_time_ms",
+                    performance.median_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "p50_response_time_ms",
+                    performance.p50_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "p90_response_time_ms",
+                    performance.p90_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "p95_response_time_ms",
+                    performance.p95_response_time_ms,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "p99_response_time_ms",
+                    performance.p99_response_time_ms,
+                ]
+            )
+        else:
+            writer.writerow(
+                [
+                    "performance",
+                    "available",
+                    False,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "requests_with_latency",
+                    0,
+                ]
+            )
+            writer.writerow(
+                [
+                    "performance",
+                    "latency_coverage",
+                    0.0,
+                ]
+            )
+
+        for path, stats in list(result.path_performance.items())[: config.top_paths]:
+            writer.writerow(
+                [
+                    "latency_path",
+                    path,
+                    (
+                        f"requests={stats.request_count};"
+                        f"average_ms={stats.average_ms:.2f};"
+                        f"median_ms={stats.median_ms:.2f};"
+                        f"p95_ms={stats.p95_ms:.2f};"
+                        f"max_ms={stats.max_ms:.2f}"
+                    ),
+                ]
+            )
+
         for method, count in result.method_counts.most_common():
             writer.writerow(["method", method, count])
 

@@ -16,6 +16,7 @@ class LogEntry:
     protocol: str
     status_code: int
     response_size: int
+    response_time_ms: float | None = None
 
 
 @dataclass
@@ -27,6 +28,34 @@ class TimeStats:
     duration_seconds: float
     requests_per_minute: float
     requests_per_hour: float
+
+
+@dataclass
+class PathPerformance:
+    """Represent performance statistics for a requested path."""
+
+    request_count: int
+    average_ms: float
+    median_ms: float
+    p95_ms: float
+    max_ms: float
+
+
+@dataclass
+class PerformanceStats:
+    """Represent overall response-time statistics."""
+
+    available: bool
+    requests_with_latency: int
+    latency_coverage: float
+    min_response_time_ms: float | None
+    max_response_time_ms: float | None
+    average_response_time_ms: float | None
+    median_response_time_ms: float | None
+    p50_response_time_ms: float | None
+    p90_response_time_ms: float | None
+    p95_response_time_ms: float | None
+    p99_response_time_ms: float | None
 
 
 @dataclass
@@ -48,6 +77,10 @@ class AnalysisResult:
     error_path_counts: Counter[str] = field(default_factory=Counter)
     error_ip_counts: Counter[str] = field(default_factory=Counter)
     error_status_counts: Counter[int] = field(default_factory=Counter)
+
+    # Performance intelligence
+    performance_stats: PerformanceStats | None = None
+    path_performance: dict[str, PathPerformance] = field(default_factory=dict)
 
     @property
     def error_count(self) -> int:

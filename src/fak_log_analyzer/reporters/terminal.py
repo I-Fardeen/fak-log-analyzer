@@ -17,7 +17,6 @@ class TerminalReporter(Reporter):
         config: ReportConfig,
     ) -> str:
         """Render the analysis result for terminal output."""
-
         return ""
 
     def display(
@@ -32,7 +31,6 @@ class TerminalReporter(Reporter):
         console.print("\n[bold]FAK Log Analyzer[/bold]\n")
 
         summary = Table(title="Summary")
-
         summary.add_column("Metric")
         summary.add_column("Value", justify="right")
 
@@ -51,7 +49,6 @@ class TerminalReporter(Reporter):
         time_stats = result.time_stats
 
         time_table = Table(title="Time Analysis")
-
         time_table.add_column("Metric")
         time_table.add_column("Value", justify="right")
 
@@ -93,7 +90,6 @@ class TerminalReporter(Reporter):
         console.print(time_table)
 
         traffic = Table(title="Requests Per Minute")
-
         traffic.add_column("Time")
         traffic.add_column("Requests", justify="right")
 
@@ -104,6 +100,88 @@ class TerminalReporter(Reporter):
             )
 
         console.print(traffic)
+
+        performance = result.performance_stats
+
+        performance_table = Table(title="Performance Analysis")
+        performance_table.add_column("Metric")
+        performance_table.add_column("Value", justify="right")
+
+        if performance is None or not performance.available:
+            performance_table.add_row(
+                "Response-time data",
+                "Not available",
+            )
+        else:
+            performance_table.add_row(
+                "Requests with latency",
+                str(performance.requests_with_latency),
+            )
+            performance_table.add_row(
+                "Latency coverage",
+                f"{performance.latency_coverage:.2f}%",
+            )
+            performance_table.add_row(
+                "Minimum",
+                f"{performance.min_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "Maximum",
+                f"{performance.max_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "Average",
+                f"{performance.average_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "Median",
+                f"{performance.median_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "P50",
+                f"{performance.p50_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "P90",
+                f"{performance.p90_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "P95",
+                f"{performance.p95_response_time_ms:.2f} ms",
+            )
+            performance_table.add_row(
+                "P99",
+                f"{performance.p99_response_time_ms:.2f} ms",
+            )
+
+        console.print(performance_table)
+
+        performance_hotspots = Table(title="Performance Hotspots")
+        performance_hotspots.add_column("Path")
+        performance_hotspots.add_column("Requests", justify="right")
+        performance_hotspots.add_column("Average", justify="right")
+        performance_hotspots.add_column("P95", justify="right")
+        performance_hotspots.add_column("Maximum", justify="right")
+
+        for path, stats in list(result.path_performance.items())[: config.top_paths]:
+            performance_hotspots.add_row(
+                path,
+                str(stats.request_count),
+                f"{stats.average_ms:.2f} ms",
+                f"{stats.p95_ms:.2f} ms",
+                f"{stats.max_ms:.2f} ms",
+            )
+
+        if not result.path_performance:
+            performance_hotspots.add_row(
+                "None",
+                "0",
+                "N/A",
+                "N/A",
+                "N/A",
+            )
+
+        console.print(performance_hotspots)
 
         methods = Table(title="HTTP Methods")
         methods.add_column("Method")

@@ -2,28 +2,35 @@
 
 A lightweight Python command-line tool for analyzing web server log files.
 
-FAK Log Analyzer parses Apache/Common Log Format logs and produces useful request, error, traffic, response-size, and operational-intelligence statistics for lightweight incident triage.
+FAK Log Analyzer parses Apache/Common Log Format logs and produces useful request, error, traffic, response-size, and performance statistics.
 
 ## Features
 
 * Parse Apache/Common Log Format logs
+* Parse extended access-log entries with response-time data
 * Count total requests
 * Detect malformed log lines
 * Analyze HTTP methods
 * Analyze HTTP status codes
 * Classify HTTP status codes into `2xx`, `3xx`, `4xx`, and `5xx`
 * Calculate error count and error rate
-* Identify server-side `5xx` failures
-* Identify error hotspots by requested path
-* Identify error-producing client IP addresses
 * Calculate total and average response size
 * Identify top IP addresses
 * Identify top requested paths
-* Analyze traffic over time
+* Limit the number of top IPs and paths displayed
+* Analyze log time ranges
 * Calculate requests per minute and requests per hour
-* Detect peak traffic
+* Identify peak traffic
 * Classify traffic trends
-* Generate automated operational findings with severity levels
+* Identify error hotspots by path
+* Identify error-producing client IP addresses
+* Identify server-side `5xx` failures
+* Generate deterministic operational findings
+* Analyze overall response-time performance
+* Calculate minimum, maximum, average, median, P50, P90, P95, and P99 latency
+* Calculate latency coverage for partial performance data
+* Identify performance hotspots by requested path
+* Detect slow endpoints using P95 response time
 * Terminal reports with Rich
 * JSON output
 * CSV output
@@ -39,10 +46,10 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 Clone the repository and install it:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/I-Fardeen/fak-log-analyzer.git
 cd fak-log-analyzer
 pip install -e .
-```
+````
 
 For development:
 
@@ -52,7 +59,7 @@ pip install -e ".[dev]"
 
 ## Command-Line Usage
 
-FAK Log Analyzer is designed as a lightweight command-line tool for analyzing web server access logs and identifying useful operational signals without requiring external infrastructure.
+FAK Log Analyzer is designed as a lightweight command-line tool for analyzing web server access logs.
 
 ### Basic Usage
 
@@ -82,11 +89,11 @@ By default, the analyzer displays a human-readable terminal report containing:
 * Traffic trend
 * HTTP method distribution
 * HTTP status-code distribution
-* HTTP status-class distribution
-* Error hotspots
-* Automated operational findings
 * Top IP addresses
 * Top requested paths
+* Overall response-time performance
+* Performance hotspots
+* Operational findings
 
 ### Command-Line Options
 
@@ -162,53 +169,35 @@ fak-log-analyzer access.log \
 
 > **Note:** The terminal format is intended for interactive display and cannot be written to a file using `--output`. Use JSON or CSV when a report needs to be saved or processed by another tool.
 
-## Operational Intelligence
+## Supported Log Formats
 
-Version 0.4.0 introduces an operational-intelligence layer on top of the core log statistics.
+### Standard Common Log Format
 
-### HTTP Status Classes
+FAK Log Analyzer supports standard Apache/Common Log Format entries:
 
-Responses are grouped into standard HTTP status classes:
+```text
+127.0.0.1 - - [13/Sep/2026:10:15:01 +0530] "GET /api/users HTTP/1.1" 200 1234
+```
 
-* `2xx` — successful responses
-* `3xx` — redirects
-* `4xx` — client errors
-* `5xx` — server errors
+For standard CLF entries, response-time information is unavailable.
 
-This provides a higher-level view of application behavior than individual status-code counts alone.
+### Extended Timed Access Logs
 
-### Error Hotspots
+Version 0.5.0 adds support for an optional response-time field:
 
-The analyzer identifies where HTTP errors are concentrated by reporting:
+```text
+127.0.0.1 - - [13/Sep/2026:10:15:01 +0530] "GET /api/users HTTP/1.1" 200 1234 125
+```
 
-* Requested paths producing repeated errors
-* Client IP addresses producing repeated errors
-* Individual error status codes
+The final value represents **response time in milliseconds**.
 
-This helps narrow an investigation toward the most problematic endpoint or client.
+Decimal response times are also supported:
 
-### Automated Findings
+```text
+127.0.0.1 - - [13/Sep/2026:10:15:01 +0530] "GET /api/search HTTP/1.1" 200 2048 125.5
+```
 
-The findings engine applies deterministic rules to the analysis result and produces structured operational findings.
-
-Examples include:
-
-* High or elevated overall error rates
-* Significant `5xx` server-side failures
-* Repeated errors on a specific path
-* Repeated errors from a specific client IP
-* Increasing or decreasing request volume
-
-Each finding contains:
-
-* Severity
-* Category
-* Title
-* Operational message
-
-Findings are ordered by severity so the most important signals appear first.
-
-The rules are intentionally deterministic and transparent. They are designed to assist incident triage rather than replace a full monitoring or observability platform.
+Response-time data is optional. Standard CLF entries remain fully supported and are represented with unavailable latency rather than zero.
 
 ## Traffic Analysis
 
@@ -237,6 +226,111 @@ and classifies the overall traffic trend as:
 
 These traffic metrics are available through the terminal, JSON, and CSV reporters.
 
+## Performance Intelligence
+
+Version 0.5.0 introduces response-time analysis for extended access logs.
+
+### Overall Performance Metrics
+
+When response-time data is available, FAK Log Analyzer calculates:
+
+* Minimum response time
+* Maximum response time
+* Average response time
+* Median response time
+* P50
+* P90
+* P95
+* P99
+* Requests with latency data
+* Latency coverage
+
+Percentiles use linear interpolation.
+
+### Latency Coverage
+
+Logs may contain response-time data for only some requests.
+
+For example:
+
+```text
+Requests with latency → 50
+Latency coverage      → 50.00%
+```
+
+This allows partially instrumented logs to remain useful for performance analysis.
+
+When no response-time data is available, performance is reported as unavailable rather than treating latency as `0 ms`.
+
+### Performance Hotspots
+
+Performance statistics are calculated per requested path:
+
+* Request count
+* Average response time
+* Median response time
+* P95 response time
+* Maximum response time
+
+Performance hotspots are ordered by P95 latency.
+
+### Automated Latency Findings
+
+Latency findings use deterministic P95-based thresholds:
+
+| P95 response time | Severity           |
+| ----------------- | ------------------ |
+| `< 500 ms`        | No latency finding |
+| `>= 500 ms`       | MEDIUM             |
+| `>= 1000 ms`      | HIGH               |
+
+Endpoint latency findings require at least two requests for an endpoint.
+
+> **Note:** These thresholds are heuristic defaults intended for operational triage, not universal performance guarantees.
+
+## Operational Intelligence
+
+Version 0.4.0 introduced an operational-intelligence layer on top of the core log statistics. Version 0.5.0 extends this layer with response-time intelligence.
+
+The analyzer generates deterministic findings from observed log patterns.
+
+Current findings include:
+
+* High HTTP error rates
+* Elevated HTTP error rates
+* Server-side `5xx` failures
+* Repeated error-producing paths
+* Repeated error-producing client IP addresses
+* Increasing traffic
+* Decreasing traffic
+* High overall response latency
+* Slow endpoints
+
+Findings are assigned one of four severity levels:
+
+```text
+HIGH
+MEDIUM
+LOW
+INFO
+```
+
+The finding engine is deterministic: the same input data produces the same findings.
+
+## Error Analysis
+
+HTTP responses with status codes in the `4xx` and `5xx` ranges are treated as HTTP errors.
+
+The analyzer provides:
+
+* Overall error rate
+* Error counts by status code
+* Error counts by path
+* Error counts by client IP
+* Server-side `5xx` counts
+
+Repeated error sources are surfaced as operational findings.
+
 ## Output Formats
 
 ### Terminal
@@ -247,7 +341,17 @@ Designed for human-readable interactive analysis:
 fak-log-analyzer access.log
 ```
 
-The terminal report includes summary statistics, time analysis, traffic distribution, HTTP methods, status codes and classes, error hotspots, operational findings, top IP addresses, and top requested paths.
+The terminal report includes:
+
+* Summary statistics
+* Time and traffic analysis
+* HTTP status information
+* Top IP addresses
+* Top requested paths
+* Error hotspots
+* Performance analysis
+* Performance hotspots
+* Operational findings
 
 ### JSON
 
@@ -265,12 +369,19 @@ time
 traffic
 methods
 status_codes
-status_classes
 top_ips
 top_paths
-error_hotspots
+errors
+performance
+performance_hotspots
 findings
 ```
+
+Traffic data includes per-minute request counts and peak traffic information.
+
+Performance data includes overall response-time statistics and latency coverage when available.
+
+Performance hotspots contain per-path response-time statistics ordered by P95 latency.
 
 ### CSV
 
@@ -280,7 +391,19 @@ Designed for spreadsheets, data analysis, and downstream processing:
 fak-log-analyzer access.log --format csv
 ```
 
-CSV output contains categorized records for summary statistics, time analysis, traffic data, methods, status codes and classes, IP addresses, requested paths, error hotspots, and operational findings.
+CSV output contains categorized records for:
+
+* Summary statistics
+* Time analysis
+* Traffic data
+* HTTP methods
+* Status codes
+* IP addresses
+* Requested paths
+* Error hotspots
+* Performance statistics
+* Per-path performance
+* Operational findings
 
 ## Project Structure
 
@@ -297,6 +420,7 @@ fak-log-analyzer/
 │       ├── findings.py
 │       ├── models.py
 │       ├── parser.py
+│       ├── performance_analysis.py
 │       ├── time_analysis.py
 │       └── reporters/
 │           ├── __init__.py
@@ -305,8 +429,20 @@ fak-log-analyzer/
 │           ├── json.py
 │           └── terminal.py
 ├── tests/
+│   ├── sample.log
+│   ├── test_analyzer.py
+│   ├── test_error_hotspots.py
+│   ├── test_findings.py
+│   ├── test_parser.py
+│   ├── test_performance_analysis.py
+│   ├── test_performance_findings.py
+│   ├── test_performance_integration.py
+│   ├── test_performance_parser.py
+│   ├── test_report.py
+│   ├── test_reporters.py
+│   └── test_time_analysis.py
 ├── docs/
-├── .env.example
+│   └── usage.md
 ├── .gitignore
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
@@ -333,14 +469,17 @@ LogEntry Models
    ▼
 Analyzer
    │
+   ├── Time Analysis
+   │
+   ├── Error Analysis
+   │
+   └── Performance Analysis
+   │
    ▼
 AnalysisResult
    │
-   ├── Time & Traffic Analysis
-   │
-   ├── Error Hotspot Analysis
-   │
-   └── Operational Findings
+   ▼
+Operational Findings
    │
    ▼
 Reporter Factory
@@ -349,6 +488,12 @@ Reporter Factory
    ├── JSON Reporter
    └── CSV Reporter
 ```
+
+The parser converts raw log lines into structured `LogEntry` objects.
+
+The analyzer transforms parsed entries into an `AnalysisResult` containing aggregated request, status, traffic, error, and performance information.
+
+The findings layer derives deterministic operational intelligence from the analysis results.
 
 The reporter-based architecture makes it easier to add new output formats without modifying the core analysis engine.
 
@@ -386,9 +531,11 @@ ruff format .
 
 ## Testing
 
-The project includes unit tests covering:
+The project includes **67 tests** covering:
 
 * Log parsing
+* Standard Common Log Format parsing
+* Extended response-time parsing
 * Invalid and malformed input
 * File parsing
 * Request statistics
@@ -398,33 +545,29 @@ The project includes unit tests covering:
 * Path statistics
 * Error-rate calculation
 * Error hotspots
-* Automated operational findings
 * Response-size calculation
-* Time and traffic analysis
-* Peak traffic detection
-* Traffic trend classification
 * Empty input
+* Time analysis
+* Traffic analysis
+* Traffic trend classification
+* Performance statistics
+* Percentile calculations
+* Latency coverage
+* Per-path performance analysis
+* Performance threshold boundaries
+* Performance findings
+* Performance reporter integration
 * JSON reporting
 * CSV reporting
 * Reporter factory behavior
 
-The current test suite contains **43 tests**.
+Run all tests with:
+
+```bash
+pytest
+```
 
 ## Roadmap
-
-### v0.1 — Core Log Analysis
-
-* Common Log Format parsing
-* Request, status, IP, path, error, and response-size statistics
-* Rich terminal reporting
-
-### v0.2 — Reporting Architecture
-
-* Configurable top IP/path output
-* JSON and CSV reporters
-* File output
-* Extensible reporter architecture
-* Improved CLI validation
 
 ### v0.3 — Time & Traffic Analytics
 
@@ -438,21 +581,71 @@ The current test suite contains **43 tests**.
 ### v0.4 — Operational Intelligence
 
 * HTTP status-class analysis
-* Error hotspot detection
-* Error analysis by path, client IP, and status code
-* Automated operational findings
-* Severity-based findings
-* Operational findings in terminal, JSON, and CSV reports
-* Expanded automated test coverage
+* Error hotspot analysis
+* Operational findings
+* Deterministic severity classification
+* Server-side failure detection
+* Error-producing client detection
+* Traffic trend findings
+* Enhanced terminal, JSON, and CSV reporting
 
-### v0.5+
+### v0.5 — Performance Intelligence
 
-* Response-time metrics
-* More advanced anomaly detection
+* Response-time parsing
+* Overall latency statistics
+* Median and percentile analysis
+* P50, P90, P95, and P99 metrics
+* Latency coverage reporting
+* Per-path performance analysis
+* Performance hotspots
+* Slow endpoint detection
+* P95-based latency findings
+* Performance reporting across terminal, JSON, and CSV formats
+
+### v0.6 — Security Intelligence
+
 * Security-oriented log analysis
-* Suspicious IP/request detection
-* Additional log formats
-* Further incident-triage capabilities
+* Suspicious request detection
+* Suspicious IP detection
+* Authentication failure analysis
+* Potential scanning and probing detection
+* Security-oriented operational findings
+
+### v0.7 — Statistical Anomaly Detection
+
+* Statistical traffic anomaly detection
+* Latency anomaly detection
+* Error-rate anomaly detection
+* Baseline-based analysis
+* Outlier identification
+
+### v0.8 — Incident Correlation
+
+* Cross-signal correlation
+* Error and latency correlation
+* Traffic and performance correlation
+* Incident-oriented findings
+* Improved operational triage
+
+### v0.9 — Format Expansion
+
+* Additional access-log formats
+* Configurable parsing
+* Expanded timestamp handling
+* Additional web-server log formats
+
+### v1.0 — Production Release
+
+* Stable Python API
+* Stable CLI behavior
+* Strong automated test coverage
+* Documented input formats
+* Predictable output schemas
+* Semantic versioning
+* Formal release process
+* Performance benchmarks
+* Security review
+* Contribution documentation
 
 ## Contributing
 
@@ -476,4 +669,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ---
 
-FAK Log Analyzer is an open-source project focused on practical log analysis, DevOps tooling, operational intelligence, and observability-oriented software engineering.
+FAK Log Analyzer is an open-source project focused on practical log analysis, DevOps tooling, observability, operational intelligence, and performance-oriented software engineering.

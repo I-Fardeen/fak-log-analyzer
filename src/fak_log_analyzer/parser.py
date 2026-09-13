@@ -13,14 +13,17 @@ LOG_PATTERN = re.compile(
     r'"(?P<method>\S+) (?P<path>\S+) (?P<protocol>[^"]+)" '
     r"(?P<status>\d{3}) "
     r"(?P<size>\d+)"
+    r"(?: (?P<response_time>[0-9]+(?:\.[0-9]+)?))?"
+    r"$"
 )
 
 
 def parse_line(line: str) -> LogEntry | None:
-    """Parse a single Common Log Format line.
+    """Parse a Common Log Format or extended timed log line.
 
-    Return None when the line does not match the expected format.
+    The optional final field represents response time in milliseconds.
     """
+
     match = LOG_PATTERN.match(line.strip())
 
     if not match:
@@ -28,10 +31,15 @@ def parse_line(line: str) -> LogEntry | None:
 
     data = match.groupdict()
 
-    timestamp = datetime.strptime(
-        data["timestamp"],
-        "%d/%b/%Y:%H:%M:%S %z",
-    )
+    try:
+        timestamp = datetime.strptime(
+            data["timestamp"],
+            "%d/%b/%Y:%H:%M:%S %z",
+        )
+    except ValueError:
+        return None
+
+    response_time = data["response_time"]
 
     return LogEntry(
         ip_address=data["ip"],
@@ -41,6 +49,7 @@ def parse_line(line: str) -> LogEntry | None:
         protocol=data["protocol"],
         status_code=int(data["status"]),
         response_size=int(data["size"]),
+        response_time_ms=(float(response_time) if response_time is not None else None),
     )
 
 
