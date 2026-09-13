@@ -4,6 +4,12 @@ A lightweight Python command-line tool for analyzing web server log files.
 
 FAK Log Analyzer parses Apache/Common Log Format logs and produces useful request, error, traffic, response-size, and performance statistics.
 
+[![Tests](https://github.com/I-Fardeen/fak-log-analyzer/actions/workflows/tests.yml/badge.svg)](https://github.com/I-Fardeen/fak-log-analyzer/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/v/release/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/releases)
+[![Tests](https://img.shields.io/badge/tests-67%20passing-success.svg)](https://github.com/I-Fardeen/fak-log-analyzer/actions)
+
 ## Features
 
 * Parse Apache/Common Log Format logs
