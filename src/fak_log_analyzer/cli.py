@@ -9,45 +9,69 @@ from fak_log_analyzer.parser import parse_file
 from fak_log_analyzer.reporters import get_reporter
 from fak_log_analyzer.reporters.terminal import TerminalReporter
 
+VERSION = "0.5.0"
+
 
 def create_parser() -> argparse.ArgumentParser:
     """Create the command-line argument parser."""
     parser = argparse.ArgumentParser(
         prog="fak-log-analyzer",
-        description="Analyze web server log files.",
+        description=(
+            "Analyze web server access logs and extract "
+            "traffic, error, and performance intelligence."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  fak-log-analyzer access.log\n"
+            "  fak-log-analyzer access.log --format json\n"
+            "  fak-log-analyzer access.log --format csv --output report.csv\n"
+            "  fak-log-analyzer access.log --top-ips 5 --top-paths 10"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
         "logfile",
         type=Path,
-        help="Path to the log file to analyze.",
+        help="Path to the web server access log file to analyze.",
     )
 
     parser.add_argument(
         "--top-ips",
         type=int,
         default=10,
-        help="Number of top IP addresses to display.",
+        help="Number of top client IP addresses to display (default: 10).",
     )
 
     parser.add_argument(
         "--top-paths",
         type=int,
         default=10,
-        help="Number of top requested paths to display.",
+        help="Number of top requested paths to display (default: 10).",
     )
 
     parser.add_argument(
         "--format",
         choices=["terminal", "json", "csv"],
         default="terminal",
-        help="Output format.",
+        help=(
+            "Output format: terminal for interactive output, "
+            "json for structured data, or csv for tabular data "
+            "(default: terminal)."
+        ),
     )
 
     parser.add_argument(
         "--output",
         type=Path,
-        help="Write the report to a file instead of standard output.",
+        help="Write JSON or CSV output to a file.",
+    )
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {VERSION}",
+        help="Show the installed FAK Log Analyzer version and exit.",
     )
 
     return parser
