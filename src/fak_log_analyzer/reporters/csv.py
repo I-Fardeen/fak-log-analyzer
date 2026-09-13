@@ -3,6 +3,7 @@
 import csv
 import io
 
+from fak_log_analyzer.findings import generate_findings
 from fak_log_analyzer.models import AnalysisResult, ReportConfig
 from fak_log_analyzer.reporters.base import Reporter
 
@@ -65,6 +66,14 @@ class CsvReporter(Reporter):
                 time_stats.requests_per_minute,
             ]
         )
+        writer.writerow(
+            [
+                "time",
+                "requests_per_hour",
+                time_stats.requests_per_hour,
+            ]
+        )
+
         for timestamp, count in result.requests_per_minute.items():
             writer.writerow(
                 [
@@ -73,7 +82,9 @@ class CsvReporter(Reporter):
                     count,
                 ]
             )
+
         peak_timestamp, peak_requests = result.peak_traffic
+
         writer.writerow(
             [
                 "traffic_peak",
@@ -81,6 +92,7 @@ class CsvReporter(Reporter):
                 (peak_timestamp.isoformat() if peak_timestamp else ""),
             ]
         )
+
         writer.writerow(
             [
                 "traffic_peak",
@@ -88,18 +100,12 @@ class CsvReporter(Reporter):
                 peak_requests,
             ]
         )
+
         writer.writerow(
             [
                 "traffic",
                 "trend",
                 result.traffic_trend,
-            ]
-        )
-        writer.writerow(
-            [
-                "time",
-                "requests_per_hour",
-                time_stats.requests_per_hour,
             ]
         )
 
@@ -109,10 +115,31 @@ class CsvReporter(Reporter):
         for status, count in sorted(result.status_counts.items()):
             writer.writerow(["status", status, count])
 
+        for status_class, count in sorted(result.status_class_counts.items()):
+            writer.writerow(["status_class", status_class, count])
+
         for ip, count in result.ip_counts.most_common(config.top_ips):
             writer.writerow(["ip", ip, count])
 
         for path, count in result.path_counts.most_common(config.top_paths):
             writer.writerow(["path", path, count])
+
+        for path, count in result.error_path_counts.most_common(config.top_paths):
+            writer.writerow(["error_path", path, count])
+
+        for ip, count in result.error_ip_counts.most_common(config.top_ips):
+            writer.writerow(["error_ip", ip, count])
+
+        for status, count in sorted(result.error_status_counts.items()):
+            writer.writerow(["error_status", status, count])
+
+        for finding in generate_findings(result):
+            writer.writerow(
+                [
+                    "finding",
+                    f"{finding.severity.value}:{finding.category}",
+                    finding.message,
+                ]
+            )
 
         return output.getvalue()

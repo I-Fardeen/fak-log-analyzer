@@ -1,7 +1,7 @@
 """Data models used by FAK Log Analyzer."""
 
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 
@@ -36,12 +36,18 @@ class AnalysisResult:
     total_requests: int
     method_counts: Counter[str]
     status_counts: Counter[int]
+    status_class_counts: Counter[str]
     ip_counts: Counter[str]
     path_counts: Counter[str]
     total_bytes: int
     time_stats: TimeStats
     requests_per_minute: dict[datetime, int]
     malformed_lines: int = 0
+
+    # Operational intelligence
+    error_path_counts: Counter[str] = field(default_factory=Counter)
+    error_ip_counts: Counter[str] = field(default_factory=Counter)
+    error_status_counts: Counter[int] = field(default_factory=Counter)
 
     @property
     def error_count(self) -> int:

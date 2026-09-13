@@ -445,3 +445,22 @@ def test_traffic_trend_with_single_bucket():
     result = analyze(entries)
 
     assert result.traffic_trend == "stable"
+
+
+def test_status_class_counts():
+    """Analyzer should group HTTP statuses into status classes."""
+    entries = [
+        create_entry("10.0.0.1", "GET", "/", 200, 100),
+        create_entry("10.0.0.2", "GET", "/", 201, 100),
+        create_entry("10.0.0.3", "GET", "/", 301, 100),
+        create_entry("10.0.0.4", "GET", "/", 404, 100),
+        create_entry("10.0.0.5", "GET", "/", 403, 100),
+        create_entry("10.0.0.6", "GET", "/", 500, 100),
+    ]
+
+    result = analyze(entries)
+
+    assert result.status_class_counts["2xx"] == 2
+    assert result.status_class_counts["3xx"] == 1
+    assert result.status_class_counts["4xx"] == 2
+    assert result.status_class_counts["5xx"] == 1

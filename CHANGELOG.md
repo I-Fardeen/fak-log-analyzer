@@ -4,6 +4,33 @@ All notable changes to FAK Log Analyzer are documented in this file.
 
 The format follows the general principles of [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0] - 2026-09-13
+
+### Added
+
+- HTTP status-class analysis for `2xx`, `3xx`, `4xx`, and `5xx` responses.
+- Error hotspot analysis by requested path, client IP address, and HTTP status code.
+- Automated operational findings with deterministic severity levels:
+  - `HIGH`
+  - `MEDIUM`
+  - `LOW`
+  - `INFO`
+- Detection of high and elevated HTTP error rates.
+- Detection of server-side `5xx` failures.
+- Detection of repeated error-producing paths.
+- Detection of repeated error-producing client IP addresses.
+- Traffic trend findings based on observed request buckets.
+- Operational findings in terminal, JSON, and CSV reports.
+- Expanded test coverage for status classes, error hotspots, and automated findings.
+
+### Improved
+
+- Terminal reports now include HTTP status classes, error hotspots, and operational findings.
+- JSON reports now expose status classes, error hotspots, and structured findings.
+- CSV reports now include status-class, error-hotspot, and finding records.
+- Analysis results now expose reusable error counters for downstream reporting.
+- Project positioning now emphasizes operational intelligence and incident triage.
+
 ## [0.3.0] - 2026-09-12
 
 ### Added
@@ -22,7 +49,6 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 - CSV reports include traffic analytics suitable for further processing.
 - Expanded test coverage for time and traffic analysis.
 
-
 ## [0.2.0] - 2026-09-12
 
 ### Added
@@ -39,7 +65,6 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 * Reporter factory
 * Additional reporter tests
 * CLI error handling for:
-
   * Missing files
   * Directory paths
   * Permission errors
@@ -80,5 +105,7 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 * CLI entry point
 * Development tooling with pytest and Ruff
 
-[0.2.0]: https://github.com/<username>/fak-log-analyzer/releases/tag/v0.2.0
-[0.1.0]: https://github.com/<username>/fak-log-analyzer/releases/tag/v0.1.0
+[0.4.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.4.0
+[0.3.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.3.0
+[0.2.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.2.0
+[0.1.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.1.0

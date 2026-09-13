@@ -3,6 +3,7 @@
 from rich.console import Console
 from rich.table import Table
 
+from fak_log_analyzer.findings import generate_findings
 from fak_log_analyzer.models import AnalysisResult, ReportConfig
 from fak_log_analyzer.reporters.base import Reporter
 
@@ -17,8 +18,6 @@ class TerminalReporter(Reporter):
     ) -> str:
         """Render the analysis result for terminal output."""
 
-        # Rich renders directly to the terminal, so this method
-        # is handled separately through display().
         return ""
 
     def display(
@@ -76,6 +75,7 @@ class TerminalReporter(Reporter):
             "Requests per hour",
             f"{time_stats.requests_per_hour:.2f}",
         )
+
         peak_timestamp, peak_requests = result.peak_traffic
 
         time_table.add_row(
@@ -87,10 +87,8 @@ class TerminalReporter(Reporter):
                 else "N/A"
             ),
         )
-        time_table.add_row(
-            "Traffic trend",
-            result.traffic_trend,
-        )
+
+        time_table.add_row("Traffic trend", result.traffic_trend)
 
         console.print(time_table)
 
@@ -124,6 +122,79 @@ class TerminalReporter(Reporter):
             statuses.add_row(str(status), str(count))
 
         console.print(statuses)
+
+        status_classes = Table(title="HTTP Status Classes")
+        status_classes.add_column("Class")
+        status_classes.add_column("Requests", justify="right")
+        status_classes.add_column("Percentage", justify="right")
+
+        for status_class in ("2xx", "3xx", "4xx", "5xx"):
+            count = result.status_class_counts.get(status_class, 0)
+
+            percentage = (
+                (count / result.total_requests) * 100 if result.total_requests else 0.0
+            )
+
+            status_classes.add_row(
+                status_class,
+                str(count),
+                f"{percentage:.2f}%",
+            )
+
+        console.print(status_classes)
+
+        error_hotspots = Table(title="Error Hotspots")
+        error_hotspots.add_column("Category")
+        error_hotspots.add_column("Value")
+        error_hotspots.add_column("Errors", justify="right")
+
+        for path, count in result.error_path_counts.most_common(config.top_paths):
+            error_hotspots.add_row(
+                "Path",
+                path,
+                str(count),
+            )
+
+        for ip, count in result.error_ip_counts.most_common(config.top_ips):
+            error_hotspots.add_row(
+                "IP",
+                ip,
+                str(count),
+            )
+
+        for status, count in sorted(result.error_status_counts.items()):
+            error_hotspots.add_row(
+                "Status",
+                str(status),
+                str(count),
+            )
+
+        if (
+            not result.error_path_counts
+            and not result.error_ip_counts
+            and not result.error_status_counts
+        ):
+            error_hotspots.add_row(
+                "None",
+                "No HTTP errors detected",
+                "0",
+            )
+
+        console.print(error_hotspots)
+
+        findings = Table(title="Operational Findings")
+        findings.add_column("Severity")
+        findings.add_column("Category")
+        findings.add_column("Finding")
+
+        for finding in generate_findings(result):
+            findings.add_row(
+                finding.severity.value,
+                finding.category,
+                finding.message,
+            )
+
+        console.print(findings)
 
         ips = Table(title="Top IP Addresses")
         ips.add_column("IP Address")

@@ -69,6 +69,8 @@ def test_json_reporter():
     assert data["time"]["duration_seconds"] == 60.0
     assert data["time"]["requests_per_minute"] == 2.0
     assert data["time"]["requests_per_hour"] == 120.0
+    assert data["status_classes"]["2xx"] == 1
+    assert data["status_classes"]["4xx"] == 1
 
 
 def test_csv_reporter():
@@ -113,6 +115,8 @@ def test_csv_reporter():
     assert "traffic_peak,timestamp,2026-09-11T10:00:00+00:00" in output
     assert "traffic_peak,requests,1" in output
     assert "traffic,trend,stable" in output
+    assert "status_class,2xx,1" in output
+    assert "status_class,4xx,1" in output
 
 
 def test_reporter_factory():

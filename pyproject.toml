@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fak-log-analyzer"
-version = "0.3.0"
+version = "0.4.0"
 description = "A lightweight CLI log analysis tool"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,7 +12,6 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Fardeen Ahmad Khan", email = "fardeenahmadkhan786@gmail.com" }
 ]
-
 keywords = [
     "log-analyzer",
     "logs",

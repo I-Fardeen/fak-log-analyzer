@@ -2,6 +2,7 @@
 
 import json
 
+from fak_log_analyzer.findings import generate_findings
 from fak_log_analyzer.models import AnalysisResult, ReportConfig
 from fak_log_analyzer.reporters.base import Reporter
 
@@ -17,6 +18,7 @@ class JsonReporter(Reporter):
         """Render the analysis result as JSON."""
 
         time_stats = result.time_stats
+        peak_timestamp, peak_requests = result.peak_traffic
 
         data = {
             "summary": {
@@ -45,11 +47,9 @@ class JsonReporter(Reporter):
                 },
                 "peak": {
                     "timestamp": (
-                        result.peak_traffic[0].isoformat()
-                        if result.peak_traffic[0]
-                        else None
+                        peak_timestamp.isoformat() if peak_timestamp else None
                     ),
-                    "requests": result.peak_traffic[1],
+                    "requests": peak_requests,
                 },
                 "trend": result.traffic_trend,
             },
@@ -57,8 +57,26 @@ class JsonReporter(Reporter):
             "status_codes": {
                 str(status): count for status, count in result.status_counts.items()
             },
+            "status_classes": dict(result.status_class_counts),
             "top_ips": dict(result.ip_counts.most_common(config.top_ips)),
             "top_paths": dict(result.path_counts.most_common(config.top_paths)),
+            "error_hotspots": {
+                "paths": dict(result.error_path_counts.most_common(config.top_paths)),
+                "ips": dict(result.error_ip_counts.most_common(config.top_ips)),
+                "status_codes": {
+                    str(status): count
+                    for status, count in result.error_status_counts.items()
+                },
+            },
+            "findings": [
+                {
+                    "severity": finding.severity.value,
+                    "category": finding.category,
+                    "title": finding.title,
+                    "message": finding.message,
+                }
+                for finding in generate_findings(result)
+            ],
         }
 
         return json.dumps(data, indent=2)
