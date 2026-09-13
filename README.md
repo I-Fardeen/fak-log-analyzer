@@ -4,11 +4,11 @@ A lightweight Python command-line tool for analyzing web server log files.
 
 FAK Log Analyzer parses Apache/Common Log Format logs and produces useful request, error, traffic, response-size, and performance statistics.
 
-[![Tests](https://github.com/I-Fardeen/fak-log-analyzer/actions/workflows/tests.yml/badge.svg)](https://github.com/I-Fardeen/fak-log-analyzer/actions/workflows/tests.yml)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
+[![Tests](https://github.com/I-Fardeen/fak-log-analyzer/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/I-Fardeen/fak-log-analyzer/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Release](https://img.shields.io/github/v/release/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/releases)
-[![Tests](https://img.shields.io/badge/tests-67%20passing-success.svg)](https://github.com/I-Fardeen/fak-log-analyzer/actions)
+[![License](https://img.shields.io/github/license/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22735054.svg)](https://doi.org/10.5281/zenodo.22735054)
 
 ## Features
 
@@ -670,9 +670,15 @@ Please do not publicly disclose sensitive security vulnerabilities before they c
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
+
 ## Citation
 
-If you use **FAK Log Analyzer** in your research, teaching, software project, or other work, please cite the project.
+If you use **FAK Log Analyzer** in your research, teaching, software project, or other work, please cite the software.
+
+### Recommended Citation
+
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.1) [Computer software]. Zenodo.  
+https://doi.org/10.5281/zenodo.22735054
 
 ### BibTeX
 
@@ -681,33 +687,33 @@ If you use **FAK Log Analyzer** in your research, teaching, software project, or
   author       = {Fardeen Ahmad Khan},
   title        = {FAK Log Analyzer},
   year         = {2026},
-  version      = {0.5.0},
-  publisher    = {GitHub},
-  url          = {https://github.com/I-Fardeen/fak-log-analyzer},
-  doi          = {10.5281/zenodo.XXXXXXX},
+  version      = {0.5.1},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.22735054},
+  url          = {https://doi.org/10.5281/zenodo.22735054},
   license      = {MIT}
 }
 ````
 
 ### APA
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.0) [Computer software]. GitHub.
-[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.1) [Computer software]. Zenodo.
+[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
 
 ### IEEE
 
-F. A. Khan, “FAK Log Analyzer,” version 0.5.0, GitHub, 2026. [Online]. Available:
-[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+F. A. Khan, “FAK Log Analyzer,” version 0.5.1, Zenodo, 2026. [Online]. Available:
+[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
 
 ### Harvard
 
-Khan, F.A., 2026. *FAK Log Analyzer*, version 0.5.0. GitHub. Available at:
-[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+Khan, F.A., 2026. *FAK Log Analyzer*, version 0.5.1. Zenodo. Available at:
+[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
 
 ### Plain Text
 
-Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.5.0. 2026.
-GitHub: [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.5.1. 2026.
+Zenodo. DOI: 10.5281/zenodo.22735054
 
 ### RIS
 
@@ -717,22 +723,28 @@ AU  - Khan, Fardeen Ahmad
 TI  - FAK Log Analyzer
 PY  - 2026
 DA  - 2026-09-13
-ET  - 0.5.0
-PB  - GitHub
-UR  - https://github.com/I-Fardeen/fak-log-analyzer
+ET  - 0.5.1
+PB  - Zenodo
+DO  - 10.5281/zenodo.22735054
+UR  - https://doi.org/10.5281/zenodo.22735054
 LA  - en
 ER  -
 ```
 
-### Cite This Repository
-
-GitHub can also generate citation information from the project's `CITATION.cff` file. If your work depends on a specific release, cite the corresponding version rather than the moving `master` branch.
-
-**ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)
+### Software Identity
 
 **Author:** Fardeen Ahmad Khan
 **Affiliation:** MJP Rohilkhand University
-**Email:** [fardeenahmadkhan786@gmail.com](mailto:fardeenahmadkhan786@gmail.com)
+**ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)
+**GitHub:** [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+**DOI:** [https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
 
+### Version-Specific Citation
+
+The DOI above identifies the archived **v0.5.1** release. When citing results or research based on a specific software version, use the DOI associated with that version.
+
+For the latest version of the software, refer to the project's GitHub repository:
+
+[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
 
 FAK Log Analyzer is an open-source project focused on practical log analysis, DevOps tooling, observability, operational intelligence, and performance-oriented software engineering.

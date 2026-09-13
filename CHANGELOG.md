@@ -151,6 +151,7 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 * CLI entry point
 * Development tooling with pytest and Ruff
 
+[0.5.1]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.5.1
 [0.5.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.5.0
 [0.4.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.4.0
 [0.3.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.3.0
