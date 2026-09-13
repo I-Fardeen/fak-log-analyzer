@@ -8,7 +8,7 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Release](https://img.shields.io/github/v/release/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/releases)
 [![License](https://img.shields.io/github/license/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22735054.svg)](https://doi.org/10.5281/zenodo.22735054)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22735054-blue)](https://doi.org/10.5281/zenodo.22735054)
 
 ## Features
 
