@@ -4,6 +4,22 @@ All notable changes to FAK Log Analyzer are documented in this file.
 
 The format follows the general principles of [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.5.1] - 2026-09-13
+
+### Changed
+
+- Updated supported Python versions to Python 3.11 through 3.14.
+- Improved GitHub Actions CI coverage.
+- Improved repository documentation and metadata.
+- Added `CITATION.cff` with author, affiliation, email, and ORCID information.
+- Improved README repository badges and citation information.
+
+### Notes
+
+- This is a maintenance and repository-quality release following v0.5.0.
+- No changes were made to the core log-analysis behavior introduced in v0.5.0.
+
+
 ## [0.5.0] - 2026-09-13
 
 ### Added
