@@ -669,10 +669,70 @@ Please do not publicly disclose sensitive security vulnerabilities before they c
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-## Author
-
-**Fardeen Ahmad Khan**
-
 ---
+## Citation
+
+If you use **FAK Log Analyzer** in your research, teaching, software project, or other work, please cite the project.
+
+### BibTeX
+
+```bibtex
+@software{khan_fak_log_analyzer_2026,
+  author       = {Fardeen Ahmad Khan},
+  title        = {FAK Log Analyzer},
+  year         = {2026},
+  version      = {0.5.0},
+  publisher    = {GitHub},
+  url          = {https://github.com/I-Fardeen/fak-log-analyzer},
+  doi          = {10.5281/zenodo.XXXXXXX},
+  license      = {MIT}
+}
+````
+
+### APA
+
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.0) [Computer software]. GitHub.
+[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+
+### IEEE
+
+F. A. Khan, “FAK Log Analyzer,” version 0.5.0, GitHub, 2026. [Online]. Available:
+[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+
+### Harvard
+
+Khan, F.A., 2026. *FAK Log Analyzer*, version 0.5.0. GitHub. Available at:
+[https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+
+### Plain Text
+
+Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.5.0. 2026.
+GitHub: [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
+
+### RIS
+
+```text
+TY  - COMP
+AU  - Khan, Fardeen Ahmad
+TI  - FAK Log Analyzer
+PY  - 2026
+DA  - 2026-09-13
+ET  - 0.5.0
+PB  - GitHub
+UR  - https://github.com/I-Fardeen/fak-log-analyzer
+LA  - en
+ER  -
+```
+
+### Cite This Repository
+
+GitHub can also generate citation information from the project's `CITATION.cff` file. If your work depends on a specific release, cite the corresponding version rather than the moving `master` branch.
+
+**ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)
+
+**Author:** Fardeen Ahmad Khan
+**Affiliation:** MJP Rohilkhand University
+**Email:** [fardeenahmadkhan786@gmail.com](mailto:fardeenahmadkhan786@gmail.com)
+
 
 FAK Log Analyzer is an open-source project focused on practical log analysis, DevOps tooling, observability, operational intelligence, and performance-oriented software engineering.
