@@ -1,112 +1,186 @@
+"""Command Line Interface for the Fak Log Analyzer."""
+
 import argparse
 import sys
-from collections import Counter
-from fak_log_analyzer.parser import parse_file
-from fak_log_analyzer.monitor import LiveMonitor
+from typing import Optional
 
-def main():
-    parser = argparse.ArgumentParser(description="Fak Log Analyzer with Live Threat Detection")
-    
-    # Core Arguments
-    parser.add_argument("logfile", help="Path to log file")
-    parser.add_argument("--live", action="store_true", help="Monitor live server logs for DoS/DDoS attacks")
-    parser.add_argument("-t", "--threshold", type=int, default=50, help="Request threshold for DDoS alert")
-    parser.add_argument("-w", "--window", type=int, default=10, help="Time window in seconds")
-    
-    # Static Analysis Arguments
-    parser.add_argument("--top-ips", type=int, default=5, help="Top IPs count")
-    parser.add_argument("--top-paths", type=int, default=5, help="Top paths count")
-    parser.add_argument("--format", choices=["terminal", "json", "csv"], default="terminal")
-    parser.add_argument("--output", help="Output file path")
+from fak_log_analyzer.analyzer import LogAnalyzer
+from fak_log_analyzer.parser import LogParser
+from fak_log_analyzer.reporters.csv import CSVReporter
+from fak_log_analyzer.reporters.json import JSONReporter
+from fak_log_analyzer.reporters.terminal import TerminalReporter
 
-    args = parser.parse_args()
 
-    # 1. Live Monitoring Mode with Multi-IP DDoS Tracking & Report Export
-    if args.live:
-        import csv
-        import json
-        import time
+def display_live_threats(active_threats: dict) -> None:
+    """Display active threats in a formatted table to the terminal."""
+    if not active_threats:
+        return
 
-        active_threats = {}
+    print("\n" + "=" * 65)
+    print("🚨 LIVE THREAT MONITORING ALERT 🚨")
+    print("=" * 65)
+    print(
+        f"{'IP ADDRESS':<18} | {'LAST LOGIN TIME':<20} | "
+        f"{'REQUESTS':<10} | {'WINDOW'}"
+    )
+    print("-" * 65)
+    for threat_ip, data in active_threats.items():
+        print(
+            f"{threat_ip:<18} | {data['login_time']:<20} | "
+            f"{data['request_count']:<10} | {data['window_seconds']}s"
+        )
+    print("-" * 65 + "\n")
 
-        def handle_alert(alert):
-            ip = alert['source_ip']
-            active_threats[ip] = alert
-            
-            # Clear terminal screen and redraw active threats dashboard cleanly
-            sys.stdout.write("\033[H\033[J")
-            print("=" * 65)
-            print(f"       🚨 LIVE DDoS ATTACK MONITOR (Active Threats) 🚨       ")
-            print("=" * 65)
-            print(f"{'IP ADDRESS':<18} | {'LAST LOGIN TIME':<20} | {'REQUESTS':<10} | {'WINDOW'}")
-            print("-" * 65)
-            
-            for threat_ip, data in active_threats.items():
-                print(f"{threat_ip:<18} | {data['login_time']:<20} | {data['request_count']:<10} | {data['window_seconds']}s")
-            
-            print("=" * 65)
-            print("[*] Monitoring live traffic... Press Ctrl+C to stop and save report.\n")
-            sys.stdout.flush()
 
-        monitor = LiveMonitor(
-            log_path=args.logfile,
-            request_threshold=args.threshold,
-            time_window=args.window,
-            alert_callback=handle_alert
+def handle_live_monitoring(
+    analyzer: LogAnalyzer, args: argparse.Namespace
+) -> None:
+    """Handle live monitoring mode for detecting threats in real-time."""
+    print(f"[*] Starting live threat monitoring on log file: {args.live}")
+    print(f"[*] Window: {args.window}s | Threshold: {args.threshold} requests")
+    print("[*] Press Ctrl+C to stop monitoring and generate final report.\n")
+
+    try:
+        active_threats = analyzer.monitor_live(
+            filepath=args.live,
+            window_seconds=args.window,
+            threshold=args.threshold,
         )
 
-        try:
-            monitor.start()
-        except KeyboardInterrupt:
-            print("\n\n[!] Live monitoring stopped by user.")
-            
-            if active_threats:
-                output_file = args.output or f"live_threat_report.{args.format if args.format in ['json', 'csv'] else 'csv'}"
-                export_format = args.format if args.format in ['json', 'csv'] else 'csv'
-                
-                print(f"[*] Exporting live threat report to '{output_file}' ({export_format.upper()})...")
-                
-                threat_list = list(active_threats.values())
-                
-                if export_format == 'json':
-                    with open(output_file, 'w', encoding='utf-8') as jf:
-                        json.dump(threat_list, jf, indent=4)
-                else:  # CSV format
-                    with open(output_file, 'w', newline='', encoding='utf-8') as cf:
-                        writer = csv.DictWriter(cf, fieldnames=["threat_type", "source_ip", "login_time", "request_count", "window_seconds"])
-                        writer.writeheader()
-                        for row in threat_list:
-                            writer.writerow(row)
-                            
-                print(f"[+] Report successfully saved to {output_file}")
-            else:
-                print("[*] No threats were detected during this monitoring session. No report generated.")
-                
-        sys.exit(0)
+        display_live_threats(active_threats)
 
-    # 2. Original Static Analysis Mode
-    print(f"Running static analysis on {args.logfile}...")
-    entries, malformed_lines = parse_file(args.logfile)
-    
-    print(f"\n==============================")
-    print(f"     STATIC ANALYSIS REPORT   ")
-    print(f"==============================\n")
-    print(f"Total Valid Entries : {len(entries)}")
-    print(f"Malformed Lines     : {malformed_lines}")
-    
-    if entries:
-        ip_counts = Counter(getattr(e, 'ip_address', 'unknown') for e in entries)
-        path_counts = Counter(getattr(e, 'path', 'unknown') for e in entries)
-        
-        print(f"\nTop {args.top_ips} IP Addresses:")
-        for ip, count in ip_counts.most_common(args.top_ips):
-            print(f"  - {ip}: {count} requests")
-            
-        print(f"\nTop {args.top_paths} Requested Paths:")
-        for path, count in path_counts.most_common(args.top_paths):
-            print(f"  - {path}: {count} hits")
-    else:
-        print("\n[!] No valid log entries found to analyze.")
+        if active_threats:
+            default_ext = (
+                args.format if args.format in ["json", "csv"] else "csv"
+            )
+            output_file = args.output or f"live_threat_report.{default_ext}"
+            export_format = (
+                args.format if args.format in ["json", "csv"] else "csv"
+            )
+
+            print(
+                f"[*] Exporting live threat report to '{output_file}' "
+                f"({export_format.upper()})..."
+            )
+
+            if export_format == "json":
+                reporter = JSONReporter()
+            else:
+                reporter = CSVReporter()
+
+            report_data = {
+                "monitoring_window_seconds": args.window,
+                "threshold": args.threshold,
+                "active_threats": active_threats,
+            }
+            reporter.generate(report_data, output_file)
+            print(f"[+] Report successfully saved to {output_file}")
+        else:
+            print(
+                "[*] No threats were detected during this monitoring session. "
+                "No report generated."
+            )
+
+    except KeyboardInterrupt:
+        print("\n[*] Monitoring stopped by user.")
+    except FileNotFoundError:
+        print(
+            f"[!] Error: Log file not found at '{args.live}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    except Exception as e:
+        print(
+            f"[!] Unexpected error during live monitoring: {e}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+def main(argv: Optional[list[str]] = None) -> None:
+    """Parse command line arguments and run the log analyzer."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Fak Log Analyzer - Analyze server access logs "
+            "for insights and threats."
+        )
+    )
+    parser.add_argument(
+        "logfile",
+        nargs="?",
+        help="Path to the log file to analyze",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["terminal", "json", "csv"],
+        default="terminal",
+        help="Output format for the analysis report",
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        help="Path to save the output report (for json/csv formats)",
+    )
+    parser.add_argument(
+        "--live",
+        help="Path to log file to monitor live for threat patterns",
+    )
+    parser.add_argument(
+        "--window",
+        type=int,
+        default=60,
+        help="Time window in seconds for live threat detection (default: 60)",
+    )
+    parser.add_argument(
+        "--threshold",
+        type=int,
+        default=10,
+        help=(
+            "Request threshold within the window to flag a threat "
+            "(default: 10)"
+        ),
+    )
+
+    args = parser.parse_args(argv)
+
+    analyzer = LogAnalyzer()
+
+    if args.live:
+        handle_live_monitoring(analyzer, args)
+        return
+
+    if not args.logfile:
+        parser.print_help()
+        sys.exit(1)
+
+    try:
+        log_parser = LogParser()
+        entries = log_parser.parse_file(args.logfile)
+        analysis_results = analyzer.analyze(entries)
+
+        if args.format == "json":
+            reporter = JSONReporter()
+        elif args.format == "csv":
+            reporter = CSVReporter()
+        else:
+            reporter = TerminalReporter()
+
+        if args.output:
+            reporter.generate(analysis_results, args.output)
+            print(f"[+] Report successfully saved to {args.output}")
+        else:
+            reporter.generate(analysis_results, sys.stdout)
+
+    except FileNotFoundError:
+        print(
+            f"[!] Error: Log file not found at '{args.logfile}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    except Exception as e:
+        print(f"[!] Error analyzing log file: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

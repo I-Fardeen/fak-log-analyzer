@@ -1,9 +1,13 @@
 import time
 from collections import defaultdict, deque
+
 from fak_log_analyzer.parser import parse_line
 
+
 class LiveMonitor:
-    def __init__(self, log_path, request_threshold=50, time_window=10, alert_callback=None):
+    def __init__(
+        self, log_path, request_threshold=50, time_window=10, alert_callback=None
+    ):
         self.log_path = log_path
         self.request_threshold = request_threshold
         self.time_window = time_window
@@ -41,15 +45,17 @@ class LiveMonitor:
             timestamps.popleft()
 
         if len(timestamps) >= self.request_threshold:
-            login_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
-            
+            login_time = time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime(current_time)
+            )
+
             alert_data = {
                 "threat_type": "DoS / DDoS Attack",
                 "source_ip": ip,
                 "login_time": login_time,
                 "request_count": len(timestamps),
-                "window_seconds": self.time_window
+                "window_seconds": self.time_window,
             }
-            
+
             if self.alert_callback:
                 self.alert_callback(alert_data)

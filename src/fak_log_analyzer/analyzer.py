@@ -73,3 +73,10 @@ def analyze(
         performance_stats=performance_stats,
         path_performance=path_performance,
     )
+
+
+class LogAnalyzer:
+    """Compatibility wrapper class for log analysis."""
+
+    def analyze(self, entries, malformed_lines=0):
+        return analyze(entries, malformed_lines)

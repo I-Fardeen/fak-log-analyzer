@@ -157,3 +157,6 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 [0.3.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.2.0
 [0.1.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.1.0
+## [Unreleased]
+- Added real-time live threat monitoring CLI option (`--live`) for log analysis.
+- Added `test_live.py` log traffic generation script for testing live monitoring features.

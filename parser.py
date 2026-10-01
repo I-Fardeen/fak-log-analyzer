@@ -1,61 +1,53 @@
-import time
-from collections import defaultdict, deque
-from datetime import datetime
-from fak_log_analyzer.parser import parse_line
+import re
 
-class LiveMonitor:
-    def __init__(self, log_path, request_threshold=50, time_window=10, alert_callback=None):
-        self.log_path = log_path
-        self.request_threshold = request_threshold  
-        self.time_window = time_window              
-        self.alert_callback = alert_callback
-        self.ip_history = defaultdict(deque)
 
-    def start(self):
-        print(f"[*] Starting live monitoring on {self.log_path}...")
-        try:
-            with open(self.log_path, "r", encoding="utf-8") as f:
-                # Move to the end of the file to read only new live logs
-                f.seek(0, 2)
-                while True:
-                    line = f.readline()
-                    if not line:
-                        time.sleep(0.5)
-                        continue
-                    
-                    entry = parse_line(line.strip())
-                    if entry:
-                        self._analyze_entry(entry)
-        except KeyboardInterrupt:
-            print("\n[!] Live monitoring stopped by user.")
+def parse_line(line: str) -> dict | None:
+    """Parses a single log line into a structured dictionary.
 
-    def _analyze_entry(self, entry):
-        # Use ip_address property from your LogEntry model
-        ip = getattr(entry, "ip_address", None)
-        current_time = time.time()
-        
-        if not ip:
-            return
+    Expected format example:
+    192.168.1.10 - - [10/Oct/2023:13:55:36 +0000] "GET /index.html HTTP/1.1" 200 2326
+    """
+    pattern = re.compile(
+        r'(?P<ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] '
+        r'"(?P<method>\S+) (?P<endpoint>\S+) (?P<protocol>[^"]+)" '
+        r'(?P<status>\d+) (?P<size>\S+)'
+    )
 
-        # Track timestamps for this IP
-        timestamps = self.ip_history[ip]
-        timestamps.append(current_time)
+    match = pattern.match(line.strip())
+    if not match:
+        return None
 
-        # Remove timestamps outside the sliding window
-        while timestamps and current_time - timestamps[0] > self.time_window:
-            timestamps.popleft()
+    data = match.groupdict()
+    try:
+        data["status"] = int(data["status"])
+        data["size"] = int(data["size"]) if data["size"] != "-" else 0
+    except ValueError:
+        pass
 
-        # Check for DoS / DDoS threshold breach
-        if len(timestamps) >= self.request_threshold:
-            alert_data = {
-                "timestamp": datetime.now().isoformat(),
-                "severity": "HIGH",
-                "threat_type": "Potential DoS / DDoS Attack",
-                "source_ip": ip,
-                "request_count": len(timestamps),
-                "window_seconds": self.time_window
-            }
-            if self.alert_callback:
-                self.alert_callback(alert_data)
-            else:
-                print(f"[ALERT] DDoS/DoS detected from IP {ip}: {len(timestamps)} requests in {self.time_window}s")
+    return data
+
+
+def parse_file(filepath: str) -> tuple[list[dict], int]:
+    """Parses a log file line by line, returning a list of valid entries
+
+    and the count of malformed or skipped lines.
+    """
+    valid_entries = []
+    malformed_lines = 0
+
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                parsed = parse_line(line)
+                if parsed:
+                    valid_entries.append(parsed)
+                else:
+                    malformed_lines += 1
+    except FileNotFoundError:
+        print(f"[!] Error: The file '{filepath}' was not found.")
+    except Exception as e:
+        print(f"[!] Error reading file: {e}")
+
+    return valid_entries, malformed_lines

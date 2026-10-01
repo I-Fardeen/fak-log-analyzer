@@ -748,3 +748,11 @@ For the latest version of the software, refer to the project's GitHub repository
 [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
 
 FAK Log Analyzer is an open-source project focused on practical log analysis, DevOps tooling, observability, operational intelligence, and performance-oriented software engineering.
+## 🚨 Live Threat Monitoring
+
+The `fak-log-analyzer` supports real-time log analysis and threat monitoring to detect sudden traffic bursts, brute-force attacks, or DDoS attempts.
+
+### 1. Run the Log Simulator (Terminal 1)
+To generate continuous mock traffic (including normal requests and simulated botnet/attacker traffic) into a log file, run the simulator script:
+```bash
+python test_live.py 
