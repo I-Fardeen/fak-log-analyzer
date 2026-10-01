@@ -8,7 +8,7 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Release](https://img.shields.io/github/v/release/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/releases)
 [![License](https://img.shields.io/github/license/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22735054-blue)](https://doi.org/10.5281/zenodo.22735054)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23075860-blue)](https://doi.org/10.5281/zenodo.23075860)
 
 ## Features
 
@@ -721,8 +721,8 @@ If you use **FAK Log Analyzer** in your research, teaching, software project, or
 
 ### Recommended Citation
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.1) [Computer software]. Zenodo.  
-https://doi.org/10.5281/zenodo.22735054
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.6.0) [Computer software]. Zenodo.  
+https://doi.org/10.5281/zenodo.23075860
 
 ### BibTeX
 
@@ -731,33 +731,33 @@ https://doi.org/10.5281/zenodo.22735054
   author       = {Fardeen Ahmad Khan},
   title        = {FAK Log Analyzer},
   year         = {2026},
-  version      = {0.5.1},
+  version      = {0.6.0},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.22735054},
-  url          = {https://doi.org/10.5281/zenodo.22735054},
+  doi          = {10.5281/zenodo.23075860},
+  url          = {https://doi.org/10.5281/zenodo.23075860},
   license      = {MIT}
 }
 ````
 
 ### APA
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.1) [Computer software]. Zenodo.
-[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.6.0) [Computer software]. Zenodo.
+[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### IEEE
 
-F. A. Khan, “FAK Log Analyzer,” version 0.5.1, Zenodo, 2026. [Online]. Available:
-[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+F. A. Khan, “FAK Log Analyzer,” version 0.6.0, Zenodo, 2026. [Online]. Available:
+[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### Harvard
 
-Khan, F.A., 2026. *FAK Log Analyzer*, version 0.5.1. Zenodo. Available at:
-[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+Khan, F.A., 2026. *FAK Log Analyzer*, version 0.6.0. Zenodo. Available at:
+[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### Plain Text
 
-Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.5.1. 2026.
-Zenodo. DOI: 10.5281/zenodo.22735054
+Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.6.0. 2026.
+Zenodo. DOI: 10.5281/zenodo.23075860
 
 ### RIS
 
@@ -767,10 +767,10 @@ AU  - Khan, Fardeen Ahmad
 TI  - FAK Log Analyzer
 PY  - 2026
 DA  - 2026-09-13
-ET  - 0.5.1
+ET  - 0.6.0
 PB  - Zenodo
-DO  - 10.5281/zenodo.22735054
-UR  - https://doi.org/10.5281/zenodo.22735054
+DO  - 10.5281/zenodo.23075860
+UR  - https://doi.org/10.5281/zenodo.23075860
 LA  - en
 ER  -
 ```
@@ -781,11 +781,11 @@ ER  -
 **Affiliation:** MJP Rohilkhand University
 **ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)
 **GitHub:** [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
-**DOI:** [https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+**DOI:** [https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### Version-Specific Citation
 
-The DOI above identifies the archived **v0.5.1** release. When citing results or research based on a specific software version, use the DOI associated with that version.
+The DOI above identifies the archived **v0.6.0** release. When citing results or research based on a specific software version, use the DOI associated with that version.
 
 For the latest version of the software, refer to the project's GitHub repository:
 
