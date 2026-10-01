@@ -99,6 +99,7 @@ By default, the analyzer displays a human-readable terminal report containing:
 * Top requested paths
 * Overall response-time performance
 * Performance hotspots
+* Security intelligence
 * Operational findings
 
 ### Command-Line Options
@@ -294,6 +295,45 @@ Endpoint latency findings require at least two requests for an endpoint.
 
 > **Note:** These thresholds are heuristic defaults intended for operational triage, not universal performance guarantees.
 
+## Security Intelligence
+
+v0.6 introduces deterministic security-oriented analysis for common suspicious
+access-log patterns. These heuristics are designed for operational triage and
+do not claim that a request or client is malicious.
+
+### Authentication Failure Hotspots
+
+Repeated HTTP `401` responses are aggregated by client IP and requested path.
+Findings use transparent thresholds to surface repeated authentication
+failures.
+
+### Potential Path Enumeration
+
+The analyzer identifies clients generating many `404` responses across
+multiple distinct paths. This is useful for spotting resource/path probing
+patterns.
+
+### Sensitive Path Access
+
+The analyzer checks requests against a configurable set of commonly sensitive
+paths, including configuration, source-control, administration, debugging,
+and backup locations.
+
+Security rules can be adjusted in:
+
+```text
+src/fak_log_analyzer/security_rules.py
+```
+
+### Request Burst Detection
+
+Requests are grouped into the same one-minute buckets used by the traffic
+analysis. Per-IP bursts above the configured thresholds are reported as
+security signals.
+
+Security findings are evidence-based and intentionally use wording such as
+"may indicate" or "potential" rather than asserting that an attack occurred.
+
 ## Operational Intelligence
 
 Version 0.4.0 introduced an operational-intelligence layer on top of the core log statistics. Version 0.5.0 extends this layer with response-time intelligence.
@@ -357,6 +397,7 @@ The terminal report includes:
 * Error hotspots
 * Performance analysis
 * Performance hotspots
+* Security intelligence
 * Operational findings
 
 ### JSON
@@ -388,6 +429,9 @@ Traffic data includes per-minute request counts and peak traffic information.
 Performance data includes overall response-time statistics and latency coverage when available.
 
 Performance hotspots contain per-path response-time statistics ordered by P95 latency.
+
+Security data includes authentication-failure hotspots, 404 path-enumeration
+signals, sensitive-path matches, and per-IP request-burst measurements.
 
 ### CSV
 
@@ -537,7 +581,7 @@ ruff format .
 
 ## Testing
 
-The project includes **67 tests** covering:
+The project includes a comprehensive automated test suite covering:
 
 * Log parsing
 * Standard Common Log Format parsing

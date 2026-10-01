@@ -1,5 +1,3 @@
-"""Data models used by FAK Log Analyzer."""
-
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -59,6 +57,21 @@ class PerformanceStats:
 
 
 @dataclass
+class SecurityStats:
+    """Represent deterministic security-oriented log statistics."""
+
+    authentication_failures_by_ip: Counter[str] = field(default_factory=Counter)
+    authentication_failures_by_path: Counter[str] = field(default_factory=Counter)
+    not_found_by_ip: Counter[str] = field(default_factory=Counter)
+    unique_not_found_paths_by_ip: dict[str, int] = field(default_factory=dict)
+    sensitive_path_counts: Counter[str] = field(default_factory=Counter)
+    sensitive_path_ips: Counter[str] = field(default_factory=Counter)
+    peak_requests_per_minute_by_ip: dict[str, tuple[datetime, int]] = field(
+        default_factory=dict
+    )
+
+
+@dataclass
 class AnalysisResult:
     """Represent the results of analyzing a collection of log entries."""
 
@@ -81,6 +94,9 @@ class AnalysisResult:
     # Performance intelligence
     performance_stats: PerformanceStats | None = None
     path_performance: dict[str, PathPerformance] = field(default_factory=dict)
+
+    # Security intelligence
+    security_stats: SecurityStats = field(default_factory=SecurityStats)
 
     @property
     def error_count(self) -> int:

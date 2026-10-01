@@ -4,6 +4,55 @@ All notable changes to FAK Log Analyzer are documented in this file.
 
 The format follows the general principles of [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+
+- Security-oriented log analysis for HTTP access logs.
+- Authentication-failure hotspots based on repeated `401` responses.
+- Potential path-enumeration detection using repeated `404` responses across distinct paths.
+- Configurable sensitive-path detection for common administrative, configuration, source-control, debugging, and backup paths.
+- Per-IP request-burst detection using one-minute traffic buckets.
+- Security intelligence in terminal, JSON, and CSV reports.
+- Expanded security analysis, finding, and reporter integration tests.
+
+### Notes
+
+- Security detections are deterministic heuristics intended for operational triage.
+- Findings describe observed evidence and potential patterns; they do not prove malicious activity.
+- Security thresholds and sensitive paths can be adjusted in `security_rules.py`.
+- Statistical anomaly detection remains planned for v0.7.
+
+## [0.6.0] - 2026-10-01
+
+### Added
+
+- Added Security Intelligence analysis for web server access logs.
+- Added authentication failure analysis based on HTTP 401 responses.
+- Added per-IP authentication failure hotspots.
+- Added per-path authentication failure analysis.
+- Added potential 404 path-enumeration detection.
+- Added sensitive-path access detection.
+- Added configurable security detection thresholds.
+- Added per-IP request-burst detection using one-minute request buckets.
+- Added security-oriented operational findings with deterministic severity levels.
+- Added detailed security analysis to terminal reports.
+- Added structured security analysis to JSON and CSV reports.
+- Added security analysis test coverage.
+
+### Changed
+
+- Extended `AnalysisResult` with security analysis information.
+- Extended the terminal reporter with detailed security analysis sections.
+- Updated CLI version information to 0.6.0.
+
+### Notes
+
+- Security detections are heuristic and evidence-based.
+- Findings indicate patterns that may warrant investigation; they do not establish malicious intent.
+- Security thresholds are configurable and should be tuned according to the environment being analyzed.
+- No external threat-intelligence service or machine-learning model is required for Security Intelligence.
+
 ## [0.5.1] - 2026-09-13
 
 ### Changed
@@ -151,6 +200,7 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 * CLI entry point
 * Development tooling with pytest and Ruff
 
+[0.6.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.6.0
 [0.5.1]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.5.1
 [0.5.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.5.0
 [0.4.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.4.0
