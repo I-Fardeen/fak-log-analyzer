@@ -8,9 +8,9 @@ def parse_line(line: str) -> dict | None:
     192.168.1.10 - - [10/Oct/2023:13:55:36 +0000] "GET /index.html HTTP/1.1" 200 2326
     """
     pattern = re.compile(
-        r'(?P<ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] '
+        r"(?P<ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] "
         r'"(?P<method>\S+) (?P<endpoint>\S+) (?P<protocol>[^"]+)" '
-        r'(?P<status>\d+) (?P<size>\S+)'
+        r"(?P<status>\d+) (?P<size>\S+)"
     )
 
     match = pattern.match(line.strip())

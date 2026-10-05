@@ -32,7 +32,12 @@ class LiveMonitor:
             print("\n[!] Live monitoring stopped by user.")
 
     def _analyze_entry(self, entry):
-        ip = getattr(entry, "ip_address", None)
+        # Extract IP from dictionary (supporting both dict keys and object attributes)
+        if isinstance(entry, dict):
+            ip = entry.get("ip")
+        else:
+            ip = getattr(entry, "ip_address", None)
+
         current_time = time.time()
 
         if not ip:
