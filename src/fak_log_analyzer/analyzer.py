@@ -1,5 +1,3 @@
-"""Core log analysis functionality for FAK Log Analyzer."""
-
 from collections import Counter
 from collections.abc import Iterable
 
@@ -8,6 +6,7 @@ from fak_log_analyzer.performance_analysis import (
     calculate_path_performance,
     calculate_performance_stats,
 )
+from fak_log_analyzer.security_analysis import calculate_security_stats
 from fak_log_analyzer.time_analysis import (
     calculate_requests_per_minute,
     calculate_time_stats,
@@ -18,7 +17,6 @@ def analyze(
     entries: Iterable[LogEntry],
     malformed_lines: int = 0,
 ) -> AnalysisResult:
-    """Analyze parsed log entries and return aggregated results."""
 
     entries = list(entries)
 
@@ -56,6 +54,8 @@ def analyze(
 
     path_performance = calculate_path_performance(entries)
 
+    security_stats = calculate_security_stats(entries)
+
     return AnalysisResult(
         total_requests=total_requests,
         method_counts=method_counts,
@@ -72,4 +72,12 @@ def analyze(
         error_status_counts=error_status_counts,
         performance_stats=performance_stats,
         path_performance=path_performance,
+        security_stats=security_stats,
     )
+
+
+class LogAnalyzer:
+    """Compatibility wrapper class for log analysis."""
+
+    def analyze(self, entries, malformed_lines=0):
+        return analyze(entries, malformed_lines)

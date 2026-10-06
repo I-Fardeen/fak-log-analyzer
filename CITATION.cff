@@ -11,7 +11,7 @@ authors:
     orcid: "https://orcid.org/0009-0004-8726-6836"
 
 repository-code: "https://github.com/I-Fardeen/fak-log-analyzer"
-repository-artifact: "https://doi.org/10.5281/zenodo.22735054"
+repository-artifact: "https://doi.org/10.5281/zenodo.23075860"
 
 license: "MIT"
 
@@ -30,6 +30,6 @@ keywords:
   - DevOps
   - cybersecurity
 
-version: "0.5.1"
-date-released: "2026-09-13"
-doi: "10.5281/zenodo.22735054"
+version: "0.6.0"
+date-released: "2026-10-01"
+doi: "10.5281/zenodo.23075860"
