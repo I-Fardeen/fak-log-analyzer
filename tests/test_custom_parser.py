@@ -4,8 +4,7 @@ from fak_log_analyzer.parser import parse_line
 def test_parse_valid_log_line():
     """Test that a standard log line parses into correct LogEntry attributes."""
     log_line = (
-        '192.168.1.50 - - [04/Oct/2026:17:00:00 +0000] '
-        '"GET /login HTTP/1.1" 200 512'
+        '192.168.1.50 - - [04/Oct/2026:17:00:00 +0000] "GET /login HTTP/1.1" 200 512'
     )
     parsed = parse_line(log_line)
 

@@ -1,17 +1,9 @@
 import argparse
 import sys
 
- 
 from fak_log_analyzer.monitor import LiveMonitor
 
-from fak_log_analyzer.analyzer import analyze
-from fak_log_analyzer.models import ReportConfig
-from fak_log_analyzer.parser import parse_file
-from fak_log_analyzer.reporters import get_reporter
-from fak_log_analyzer.reporters.terminal import TerminalReporter
-
 VERSION = "0.6.0"
-
 
 
 def handle_alert(alert_data):
@@ -20,8 +12,7 @@ def handle_alert(alert_data):
     print("=== LIVE DDOS ATTACK MONITOR (Active Threats) ===")
     print("=" * 70)
     print(
-        f"{'IP ADDRESS':<18} | {'LAST LOG TIME':<20} | "
-        f"{'REQUESTS':<10} | {'WINDOW':<8}"
+        f"{'IP ADDRESS':<18} | {'LAST LOG TIME':<20} | {'REQUESTS':<10} | {'WINDOW':<8}"
     )
     print("-" * 70)
 
@@ -41,20 +32,15 @@ def main():
         type=str,
         help="Path to log file for real-time live monitoring",
     )
-    parser.add_argument(
-        "--window", type=int, default=10, help="Time window in seconds"
-    )
-    parser.add_argument(
-        "--threshold", type=int, default=3, help="Request threshold"
-    )
+    parser.add_argument("--window", type=int, default=10, help="Time window in seconds")
+    parser.add_argument("--threshold", type=int, default=3, help="Request threshold")
 
     args = parser.parse_args()
 
     if args.live:
         try:
             print(
-                "[*] Monitoring live traffic... "
-                "Press Ctrl+C to stop and save report.\n"
+                "[*] Monitoring live traffic... Press Ctrl+C to stop and save report.\n"
             )
 
             monitor = LiveMonitor(
