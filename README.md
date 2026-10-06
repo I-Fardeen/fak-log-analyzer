@@ -8,7 +8,7 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Release](https://img.shields.io/github/v/release/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/releases)
 [![License](https://img.shields.io/github/license/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22735054-blue)](https://doi.org/10.5281/zenodo.22735054)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23075860-blue)](https://doi.org/10.5281/zenodo.23075860)
 
 ## Features
 
@@ -99,6 +99,7 @@ By default, the analyzer displays a human-readable terminal report containing:
 * Top requested paths
 * Overall response-time performance
 * Performance hotspots
+* Security intelligence
 * Operational findings
 
 ### Command-Line Options
@@ -294,6 +295,45 @@ Endpoint latency findings require at least two requests for an endpoint.
 
 > **Note:** These thresholds are heuristic defaults intended for operational triage, not universal performance guarantees.
 
+## Security Intelligence
+
+v0.6 introduces deterministic security-oriented analysis for common suspicious
+access-log patterns. These heuristics are designed for operational triage and
+do not claim that a request or client is malicious.
+
+### Authentication Failure Hotspots
+
+Repeated HTTP `401` responses are aggregated by client IP and requested path.
+Findings use transparent thresholds to surface repeated authentication
+failures.
+
+### Potential Path Enumeration
+
+The analyzer identifies clients generating many `404` responses across
+multiple distinct paths. This is useful for spotting resource/path probing
+patterns.
+
+### Sensitive Path Access
+
+The analyzer checks requests against a configurable set of commonly sensitive
+paths, including configuration, source-control, administration, debugging,
+and backup locations.
+
+Security rules can be adjusted in:
+
+```text
+src/fak_log_analyzer/security_rules.py
+```
+
+### Request Burst Detection
+
+Requests are grouped into the same one-minute buckets used by the traffic
+analysis. Per-IP bursts above the configured thresholds are reported as
+security signals.
+
+Security findings are evidence-based and intentionally use wording such as
+"may indicate" or "potential" rather than asserting that an attack occurred.
+
 ## Operational Intelligence
 
 Version 0.4.0 introduced an operational-intelligence layer on top of the core log statistics. Version 0.5.0 extends this layer with response-time intelligence.
@@ -357,6 +397,7 @@ The terminal report includes:
 * Error hotspots
 * Performance analysis
 * Performance hotspots
+* Security intelligence
 * Operational findings
 
 ### JSON
@@ -388,6 +429,9 @@ Traffic data includes per-minute request counts and peak traffic information.
 Performance data includes overall response-time statistics and latency coverage when available.
 
 Performance hotspots contain per-path response-time statistics ordered by P95 latency.
+
+Security data includes authentication-failure hotspots, 404 path-enumeration
+signals, sensitive-path matches, and per-IP request-burst measurements.
 
 ### CSV
 
@@ -537,7 +581,7 @@ ruff format .
 
 ## Testing
 
-The project includes **67 tests** covering:
+The project includes a comprehensive automated test suite covering:
 
 * Log parsing
 * Standard Common Log Format parsing
@@ -677,8 +721,8 @@ If you use **FAK Log Analyzer** in your research, teaching, software project, or
 
 ### Recommended Citation
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.1) [Computer software]. Zenodo.  
-https://doi.org/10.5281/zenodo.22735054
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.6.0) [Computer software]. Zenodo.  
+https://doi.org/10.5281/zenodo.23075860
 
 ### BibTeX
 
@@ -687,33 +731,33 @@ https://doi.org/10.5281/zenodo.22735054
   author       = {Fardeen Ahmad Khan},
   title        = {FAK Log Analyzer},
   year         = {2026},
-  version      = {0.5.1},
+  version      = {0.6.0},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.22735054},
-  url          = {https://doi.org/10.5281/zenodo.22735054},
+  doi          = {10.5281/zenodo.23075860},
+  url          = {https://doi.org/10.5281/zenodo.23075860},
   license      = {MIT}
 }
 ````
 
 ### APA
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.5.1) [Computer software]. Zenodo.
-[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.6.0) [Computer software]. Zenodo.
+[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### IEEE
 
-F. A. Khan, “FAK Log Analyzer,” version 0.5.1, Zenodo, 2026. [Online]. Available:
-[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+F. A. Khan, “FAK Log Analyzer,” version 0.6.0, Zenodo, 2026. [Online]. Available:
+[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### Harvard
 
-Khan, F.A., 2026. *FAK Log Analyzer*, version 0.5.1. Zenodo. Available at:
-[https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+Khan, F.A., 2026. *FAK Log Analyzer*, version 0.6.0. Zenodo. Available at:
+[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### Plain Text
 
-Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.5.1. 2026.
-Zenodo. DOI: 10.5281/zenodo.22735054
+Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.6.0. 2026.
+Zenodo. DOI: 10.5281/zenodo.23075860
 
 ### RIS
 
@@ -723,10 +767,10 @@ AU  - Khan, Fardeen Ahmad
 TI  - FAK Log Analyzer
 PY  - 2026
 DA  - 2026-09-13
-ET  - 0.5.1
+ET  - 0.6.0
 PB  - Zenodo
-DO  - 10.5281/zenodo.22735054
-UR  - https://doi.org/10.5281/zenodo.22735054
+DO  - 10.5281/zenodo.23075860
+UR  - https://doi.org/10.5281/zenodo.23075860
 LA  - en
 ER  -
 ```
@@ -737,11 +781,11 @@ ER  -
 **Affiliation:** MJP Rohilkhand University
 **ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)
 **GitHub:** [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
-**DOI:** [https://doi.org/10.5281/zenodo.22735054](https://doi.org/10.5281/zenodo.22735054)
+**DOI:** [https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
 ### Version-Specific Citation
 
-The DOI above identifies the archived **v0.5.1** release. When citing results or research based on a specific software version, use the DOI associated with that version.
+The DOI above identifies the archived **v0.6.0** release. When citing results or research based on a specific software version, use the DOI associated with that version.
 
 For the latest version of the software, refer to the project's GitHub repository:
 

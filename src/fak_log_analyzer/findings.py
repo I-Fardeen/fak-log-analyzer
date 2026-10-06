@@ -1,9 +1,18 @@
-"""Operational findings for FAK Log Analyzer."""
-
 from dataclasses import dataclass
 from enum import Enum
 
 from fak_log_analyzer.models import AnalysisResult
+from fak_log_analyzer.security_rules import (
+    AUTH_FAILURE_HIGH_THRESHOLD,
+    AUTH_FAILURE_MEDIUM_THRESHOLD,
+    NOT_FOUND_DISTINCT_PATH_THRESHOLD,
+    NOT_FOUND_HIGH_THRESHOLD,
+    NOT_FOUND_MEDIUM_THRESHOLD,
+    REQUEST_BURST_HIGH_THRESHOLD,
+    REQUEST_BURST_MEDIUM_THRESHOLD,
+    SENSITIVE_PATH_HIGH_THRESHOLD,
+    SENSITIVE_PATH_MEDIUM_THRESHOLD,
+)
 
 
 class Severity(str, Enum):
@@ -204,6 +213,113 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
                         ),
                     )
                 )
+
+    # ------------------------------------------------------------------
+    # Security intelligence
+    # ------------------------------------------------------------------
+
+    security = result.security_stats
+
+    # Repeated authentication failures are a useful security signal, but
+    # the finding deliberately describes the evidence rather than claiming
+    # that an attack occurred.
+    for ip, count in security.authentication_failures_by_ip.most_common():
+        if count < AUTH_FAILURE_MEDIUM_THRESHOLD:
+            break
+
+        if count >= AUTH_FAILURE_HIGH_THRESHOLD:
+            severity = Severity.HIGH
+        else:
+            severity = Severity.MEDIUM
+
+        findings.append(
+            Finding(
+                severity=severity,
+                category="security_authentication",
+                title="Repeated authentication failures",
+                message=(
+                    f"{ip} generated {count} HTTP 401 responses, "
+                    "which may indicate repeated authentication failures."
+                ),
+            )
+        )
+
+    # A high number of distinct 404 paths from one client is a transparent
+    # heuristic for resource/path enumeration.
+    for ip, count in security.not_found_by_ip.most_common():
+        distinct_paths = security.unique_not_found_paths_by_ip.get(ip, 0)
+
+        if (
+            count < NOT_FOUND_MEDIUM_THRESHOLD
+            or distinct_paths < NOT_FOUND_DISTINCT_PATH_THRESHOLD
+        ):
+            continue
+
+        if count >= NOT_FOUND_HIGH_THRESHOLD:
+            severity = Severity.HIGH
+        else:
+            severity = Severity.MEDIUM
+
+        findings.append(
+            Finding(
+                severity=severity,
+                category="security_enumeration",
+                title="Potential path enumeration",
+                message=(
+                    f"{ip} generated {count} HTTP 404 responses across "
+                    f"{distinct_paths} distinct paths."
+                ),
+            )
+        )
+
+    # Sensitive paths are configurable in security_rules.py. A match is
+    # reported as evidence, not as proof of malicious activity.
+    for path, count in security.sensitive_path_counts.most_common():
+        if count < SENSITIVE_PATH_MEDIUM_THRESHOLD:
+            continue
+
+        severity = (
+            Severity.HIGH if count >= SENSITIVE_PATH_HIGH_THRESHOLD else Severity.MEDIUM
+        )
+
+        findings.append(
+            Finding(
+                severity=severity,
+                category="security_sensitive_path",
+                title="Sensitive path access observed",
+                message=(
+                    f"{path} was requested {count} time(s) and matches a "
+                    "configured sensitive-path rule."
+                ),
+            )
+        )
+
+    # Per-IP request bursts use the same one-minute buckets as the traffic
+    # analysis. This is intentionally a fixed heuristic until v0.7 adds
+    # statistical baselines and anomaly scoring.
+    for ip, (timestamp, count) in sorted(
+        security.peak_requests_per_minute_by_ip.items(),
+        key=lambda item: item[1][1],
+        reverse=True,
+    ):
+        if count < REQUEST_BURST_MEDIUM_THRESHOLD:
+            break
+
+        severity = (
+            Severity.HIGH if count >= REQUEST_BURST_HIGH_THRESHOLD else Severity.MEDIUM
+        )
+
+        findings.append(
+            Finding(
+                severity=severity,
+                category="security_request_burst",
+                title="Request burst observed",
+                message=(
+                    f"{ip} generated {count} requests in the minute "
+                    f"starting {timestamp.isoformat()}."
+                ),
+            )
+        )
 
     # ------------------------------------------------------------------
     # Traffic trend

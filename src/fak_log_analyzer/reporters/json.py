@@ -61,6 +61,49 @@ class JsonReporter(Reporter):
             for path, stats in list(result.path_performance.items())[: config.top_paths]
         }
 
+        security = result.security_stats
+
+        security_data = {
+            "authentication_failures": {
+                "by_ip": dict(
+                    security.authentication_failures_by_ip.most_common(config.top_ips)
+                ),
+                "by_path": dict(
+                    security.authentication_failures_by_path.most_common(
+                        config.top_paths
+                    )
+                ),
+            },
+            "not_found": {
+                "by_ip": dict(security.not_found_by_ip.most_common(config.top_ips)),
+                "unique_paths_by_ip": dict(
+                    sorted(
+                        security.unique_not_found_paths_by_ip.items(),
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )[: config.top_ips]
+                ),
+            },
+            "sensitive_paths": {
+                "paths": dict(
+                    security.sensitive_path_counts.most_common(config.top_paths)
+                ),
+                "ips": dict(security.sensitive_path_ips.most_common(config.top_ips)),
+            },
+            "request_bursts": [
+                {
+                    "ip": ip,
+                    "timestamp": timestamp.isoformat(),
+                    "requests": count,
+                }
+                for ip, (timestamp, count) in sorted(
+                    security.peak_requests_per_minute_by_ip.items(),
+                    key=lambda item: item[1][1],
+                    reverse=True,
+                )[: config.top_ips]
+            ],
+        }
+
         data = {
             "summary": {
                 "total_requests": result.total_requests,
@@ -96,6 +139,7 @@ class JsonReporter(Reporter):
             },
             "performance": performance_data,
             "performance_hotspots": path_performance,
+            "security": security_data,
             "methods": dict(result.method_counts),
             "status_codes": {
                 str(status): count for status, count in result.status_counts.items()

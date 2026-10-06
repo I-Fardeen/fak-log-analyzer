@@ -227,6 +227,47 @@ class CsvReporter(Reporter):
                 ]
             )
 
+        security = result.security_stats
+
+        for ip, count in security.authentication_failures_by_ip.most_common(
+            config.top_ips
+        ):
+            writer.writerow(["security_auth_ip", ip, count])
+
+        for path, count in security.authentication_failures_by_path.most_common(
+            config.top_paths
+        ):
+            writer.writerow(["security_auth_path", path, count])
+
+        for ip, count in security.not_found_by_ip.most_common(config.top_ips):
+            distinct = security.unique_not_found_paths_by_ip.get(ip, 0)
+            writer.writerow(
+                [
+                    "security_404_ip",
+                    ip,
+                    f"requests={count};distinct_paths={distinct}",
+                ]
+            )
+
+        for path, count in security.sensitive_path_counts.most_common(config.top_paths):
+            writer.writerow(["security_sensitive_path", path, count])
+
+        for ip, count in security.sensitive_path_ips.most_common(config.top_ips):
+            writer.writerow(["security_sensitive_ip", ip, count])
+
+        for ip, (timestamp, count) in sorted(
+            security.peak_requests_per_minute_by_ip.items(),
+            key=lambda item: item[1][1],
+            reverse=True,
+        )[: config.top_ips]:
+            writer.writerow(
+                [
+                    "security_request_burst",
+                    ip,
+                    f"timestamp={timestamp.isoformat()};requests={count}",
+                ]
+            )
+
         for method, count in result.method_counts.most_common():
             writer.writerow(["method", method, count])
 

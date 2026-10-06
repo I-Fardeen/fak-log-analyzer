@@ -1,7 +1,17 @@
 import argparse
 import sys
 
+ 
 from fak_log_analyzer.monitor import LiveMonitor
+
+from fak_log_analyzer.analyzer import analyze
+from fak_log_analyzer.models import ReportConfig
+from fak_log_analyzer.parser import parse_file
+from fak_log_analyzer.reporters import get_reporter
+from fak_log_analyzer.reporters.terminal import TerminalReporter
+
+VERSION = "0.6.0"
+
 
 
 def handle_alert(alert_data):
