@@ -783,9 +783,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 FAK Log Analyzer v0.7.0 is the current software release.
 
-A version-specific Zenodo DOI will be added to the repository metadata after
-the v0.7.0 archive is published. The project does not guess or reuse a
-version-specific DOI before that archival record exists.
+**DOI:** [https://doi.org/10.5281/zenodo.23230162](https://doi.org/10.5281/zenodo.23230162)
 
 ### Previous Archived Release
 

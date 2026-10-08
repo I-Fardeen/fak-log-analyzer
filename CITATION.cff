@@ -11,6 +11,7 @@ authors:
     orcid: "https://orcid.org/0009-0004-8726-6836"
 
 repository-code: "https://github.com/I-Fardeen/fak-log-analyzer"
+repository-artifact: "https://doi.org/10.5281/zenodo.23230162"
 license: "MIT"
 
 abstract: >
@@ -30,4 +31,4 @@ keywords:
 
 version: "0.7.0"
 date-released: "2026-10-08"
-doi: "10.5281/zenodo.23075860"
+doi: "10.5281/zenodo.23230162"
