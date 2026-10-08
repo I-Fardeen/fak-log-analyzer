@@ -7,6 +7,7 @@ from fak_log_analyzer.performance_analysis import (
     calculate_performance_stats,
 )
 from fak_log_analyzer.security_analysis import calculate_security_stats
+from fak_log_analyzer.statistical_analysis import calculate_statistical_stats
 from fak_log_analyzer.time_analysis import (
     calculate_requests_per_minute,
     calculate_time_stats,
@@ -56,6 +57,8 @@ def analyze(
 
     security_stats = calculate_security_stats(entries)
 
+    statistical_stats = calculate_statistical_stats(entries)
+
     return AnalysisResult(
         total_requests=total_requests,
         method_counts=method_counts,
@@ -73,4 +76,5 @@ def analyze(
         performance_stats=performance_stats,
         path_performance=path_performance,
         security_stats=security_stats,
+        statistical_stats=statistical_stats,
     )

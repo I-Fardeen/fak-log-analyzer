@@ -8,7 +8,6 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Release](https://img.shields.io/github/v/release/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/releases)
 [![License](https://img.shields.io/github/license/I-Fardeen/fak-log-analyzer)](https://github.com/I-Fardeen/fak-log-analyzer/blob/master/LICENSE)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23075860-blue)](https://doi.org/10.5281/zenodo.23075860)
 
 ## Features
 
@@ -37,6 +36,9 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 * Calculate latency coverage for partial performance data
 * Identify performance hotspots by requested path
 * Detect slow endpoints using P95 response time
+* Detect statistical anomalies using Z-score and IQR methods
+* Establish statistical baselines for traffic, errors, latency, IPs, and paths
+* Report anomaly evidence including baseline, deviation, method, and severity
 * Terminal reports with Rich
 * JSON output
 * CSV output
@@ -99,6 +101,7 @@ By default, the analyzer displays a human-readable terminal report containing:
 * Top requested paths
 * Overall response-time performance
 * Performance hotspots
+* Statistical anomaly detection
 * Security intelligence
 * Operational findings
 
@@ -295,6 +298,59 @@ Endpoint latency findings require at least two requests for an endpoint.
 
 > **Note:** These thresholds are heuristic defaults intended for operational triage, not universal performance guarantees.
 
+## Statistical Anomaly Detection
+
+Version 0.7.0 adds deterministic statistical anomaly detection using
+common descriptive-statistics and outlier techniques. It does not require
+NumPy, SciPy, scikit-learn, machine-learning models, or external services.
+
+### Statistical Methods
+
+FAK Log Analyzer uses two complementary methods:
+
+* **Z-score** — measures how many standard deviations an observation is from
+  the metric mean.
+* **IQR / Tukey fences** — identifies observations outside the interquartile
+  range. This provides a more robust outlier signal when extreme values can
+  distort the mean and standard deviation.
+
+A minimum sample size is enforced before a statistical baseline is considered
+valid. This prevents very small datasets from being presented as statistically
+significant.
+
+### Analyzed Metrics
+
+The statistical layer can establish baselines for:
+
+* Requests per minute
+* Error rate per minute
+* Requests per client IP
+* Requests per endpoint
+* Response time in milliseconds
+
+Each anomaly records evidence such as:
+
+* Observed value
+* Baseline mean
+* Standard deviation
+* Z-score, when available
+* IQR fences
+* Detection method
+* Severity
+
+Example terminal output:
+
+```text
+Statistical Anomalies
+
+Severity  Metric                 Observation        Observed  Baseline  Z-score  Method
+HIGH      requests_per_minute    2026-09-13 10:15      84.00     21.40     8.03  z-score+IQR
+MEDIUM    response_time_ms       /api/search        1250.00    410.20     2.41  z-score
+```
+
+These results are statistical signals rather than proof of an incident. They
+are intended to support investigation and operational triage.
+
 ## Security Intelligence
 
 v0.6 introduces deterministic security-oriented analysis for common suspicious
@@ -397,6 +453,7 @@ The terminal report includes:
 * Error hotspots
 * Performance analysis
 * Performance hotspots
+* Statistical anomaly detection
 * Security intelligence
 * Operational findings
 
@@ -488,8 +545,10 @@ fak-log-analyzer/
 │   ├── test_performance_findings.py
 │   ├── test_performance_integration.py
 │   ├── test_performance_parser.py
+│   ├── test_anomaly_findings.py
 │   ├── test_report.py
 │   ├── test_reporters.py
+│   ├── test_statistical_analysis.py
 │   └── test_time_analysis.py
 ├── docs/
 │   └── usage.md
@@ -541,9 +600,9 @@ Reporter Factory
 
 The parser converts raw log lines into structured `LogEntry` objects.
 
-The analyzer transforms parsed entries into an `AnalysisResult` containing aggregated request, status, traffic, error, and performance information.
+The analyzer transforms parsed entries into an `AnalysisResult` containing aggregated request, status, traffic, error, performance, security, and statistical information.
 
-The findings layer derives deterministic operational intelligence from the analysis results.
+The findings layer derives deterministic operational intelligence and statistical anomaly findings from the analysis results.
 
 The reporter-based architecture makes it easier to add new output formats without modifying the core analysis engine.
 
@@ -607,6 +666,9 @@ The project includes a comprehensive automated test suite covering:
 * Performance threshold boundaries
 * Performance findings
 * Performance reporter integration
+* Statistical baseline and anomaly analysis
+* Statistical anomaly findings
+* Statistical JSON and CSV reporting
 * JSON reporting
 * CSV reporting
 * Reporter factory behavior
@@ -717,78 +779,32 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Citation
 
-If you use **FAK Log Analyzer** in your research, teaching, software project, or other work, please cite the software.
+### Current Release
 
-### Recommended Citation
+FAK Log Analyzer v0.7.0 is the current software release.
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.6.0) [Computer software]. Zenodo.  
-https://doi.org/10.5281/zenodo.23075860
+A version-specific Zenodo DOI will be added to the repository metadata after
+the v0.7.0 archive is published. The project does not guess or reuse a
+version-specific DOI before that archival record exists.
 
-### BibTeX
+### Previous Archived Release
 
-```bibtex
-@software{khan_fak_log_analyzer_2026,
-  author       = {Fardeen Ahmad Khan},
-  title        = {FAK Log Analyzer},
-  year         = {2026},
-  version      = {0.6.0},
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.23075860},
-  url          = {https://doi.org/10.5281/zenodo.23075860},
-  license      = {MIT}
-}
-````
+The following DOI identifies the archived **v0.6.0** release:
 
-### APA
+**DOI:** [https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
-Khan, F. A. (2026). *FAK Log Analyzer* (Version 0.6.0) [Computer software]. Zenodo.
-[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
+### Citation File
 
-### IEEE
-
-F. A. Khan, “FAK Log Analyzer,” version 0.6.0, Zenodo, 2026. [Online]. Available:
-[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
-
-### Harvard
-
-Khan, F.A., 2026. *FAK Log Analyzer*, version 0.6.0. Zenodo. Available at:
-[https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
-
-### Plain Text
-
-Fardeen Ahmad Khan. FAK Log Analyzer. Version 0.6.0. 2026.
-Zenodo. DOI: 10.5281/zenodo.23075860
-
-### RIS
-
-```text
-TY  - COMP
-AU  - Khan, Fardeen Ahmad
-TI  - FAK Log Analyzer
-PY  - 2026
-DA  - 2026-09-13
-ET  - 0.6.0
-PB  - Zenodo
-DO  - 10.5281/zenodo.23075860
-UR  - https://doi.org/10.5281/zenodo.23075860
-LA  - en
-ER  -
-```
+The repository includes `CITATION.cff` for machine-readable citation metadata.
 
 ### Software Identity
 
-**Author:** Fardeen Ahmad Khan
-**Affiliation:** MJP Rohilkhand University
-**ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)
+**Author:** Fardeen Ahmad Khan  
+**Affiliation:** MJP Rohilkhand University  
+**ORCID:** [https://orcid.org/0009-0004-8726-6836](https://orcid.org/0009-0004-8726-6836)  
 **GitHub:** [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
-**DOI:** [https://doi.org/10.5281/zenodo.23075860](https://doi.org/10.5281/zenodo.23075860)
 
-### Version-Specific Citation
-
-The DOI above identifies the archived **v0.6.0** release. When citing results or research based on a specific software version, use the DOI associated with that version.
-
-For the latest version of the software, refer to the project's GitHub repository:
+For the latest source and release information, refer to the project's GitHub repository:
 
 [https://github.com/I-Fardeen/fak-log-analyzer](https://github.com/I-Fardeen/fak-log-analyzer)
 
-FAK Log Analyzer is an open-source project focused on practical log analysis, DevOps tooling, observability, operational intelligence, and performance-oriented software engineering.

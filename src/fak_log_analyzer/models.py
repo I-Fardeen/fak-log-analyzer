@@ -71,6 +71,51 @@ class SecurityStats:
     )
 
 
+@dataclass(frozen=True)
+class StatisticalMetric:
+    """Describe the statistical baseline for one analyzed metric."""
+
+    sample_size: int
+    mean: float
+    median: float
+    standard_deviation: float
+    q1: float
+    q3: float
+    iqr: float
+    lower_fence: float
+    upper_fence: float
+
+
+@dataclass(frozen=True)
+class StatisticalAnomaly:
+    """Represent a statistically unusual observation with evidence context."""
+
+    metric: str
+    scope: str
+    key: str
+    observed: float
+    baseline: float
+    standard_deviation: float
+    z_score: float | None
+    lower_fence: float
+    upper_fence: float
+    method: str
+    severity: str
+    observation_time: datetime | None = None
+    path: str | None = None
+    ip_address: str | None = None
+    status_code: int | None = None
+
+
+@dataclass
+class StatisticalStats:
+    """Represent statistical anomaly-analysis results."""
+
+    available: bool
+    metrics: dict[str, StatisticalMetric] = field(default_factory=dict)
+    anomalies: list[StatisticalAnomaly] = field(default_factory=list)
+
+
 @dataclass
 class AnalysisResult:
     """Represent the results of analyzing a collection of log entries."""
@@ -97,6 +142,9 @@ class AnalysisResult:
 
     # Security intelligence
     security_stats: SecurityStats = field(default_factory=SecurityStats)
+
+    # Statistical anomaly intelligence
+    statistical_stats: StatisticalStats | None = None
 
     @property
     def error_count(self) -> int:

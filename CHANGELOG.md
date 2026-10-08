@@ -8,20 +8,44 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 
 ### Added
 
-- Security-oriented log analysis for HTTP access logs.
-- Authentication-failure hotspots based on repeated `401` responses.
-- Potential path-enumeration detection using repeated `404` responses across distinct paths.
-- Configurable sensitive-path detection for common administrative, configuration, source-control, debugging, and backup paths.
-- Per-IP request-burst detection using one-minute traffic buckets.
-- Security intelligence in terminal, JSON, and CSV reports.
-- Expanded security analysis, finding, and reporter integration tests.
+- Future changes will be documented here.
+
+## [0.7.0] - 2026-10-08
+
+### Added
+
+- Added deterministic statistical anomaly analysis using Z-score and
+  IQR/Tukey-fence methods.
+- Added minimum-sample safeguards before statistical baselines are considered
+  available.
+- Added statistical baselines for requests per minute, error rate per minute,
+  requests per IP, requests per path, and response time.
+- Added evidence-rich statistical anomaly records containing observed value,
+  baseline, standard deviation, Z-score, IQR fences, method, severity, and
+  request context where applicable.
+- Added statistical anomaly findings to the common findings engine.
+- Added statistical anomaly sections to terminal, JSON, and CSV reports.
+- Added dedicated statistical-analysis and anomaly-finding tests.
+- Added release metadata and documentation for the v0.7.0 statistical
+  intelligence release.
+
+### Changed
+
+- Updated package and CLI version information to 0.7.0.
+- Updated security-support documentation for the current release line.
+- Updated usage documentation to cover statistical anomaly detection.
+- Cleaned release metadata so version-specific Zenodo identifiers are not
+  claimed before the v0.7.0 archive is published.
 
 ### Notes
 
-- Security detections are deterministic heuristics intended for operational triage.
-- Findings describe observed evidence and potential patterns; they do not prove malicious activity.
-- Security thresholds and sensitive paths can be adjusted in `security_rules.py`.
-- Statistical anomaly detection remains planned for v0.7.
+- Statistical anomalies are signals for investigation and operational triage,
+  not proof of malicious activity or an incident.
+- Z-score and IQR results can differ depending on sample size and
+  distribution; the tool exposes the detection method so results remain
+  interpretable.
+- The statistical layer uses the Python standard library and introduces no
+  additional runtime dependency.
 
 ## [0.6.0] - 2026-10-01
 
@@ -200,6 +224,7 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 * CLI entry point
 * Development tooling with pytest and Ruff
 
+[0.7.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.7.0
 [0.6.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.6.0
 [0.5.1]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.5.1
 [0.5.0]: https://github.com/I-Fardeen/fak-log-analyzer/releases/tag/v0.5.0

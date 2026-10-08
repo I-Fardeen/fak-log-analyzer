@@ -49,7 +49,7 @@ class CsvReporter(Reporter):
             [
                 "time",
                 "end_time",
-                (time_stats.end_time.isoformat() if time_stats.end_time else ""),
+                time_stats.end_time.isoformat() if time_stats.end_time else "",
             ]
         )
         writer.writerow(
@@ -89,7 +89,7 @@ class CsvReporter(Reporter):
             [
                 "traffic_peak",
                 "timestamp",
-                (peak_timestamp.isoformat() if peak_timestamp else ""),
+                peak_timestamp.isoformat() if peak_timestamp else "",
             ]
         )
 
@@ -226,6 +226,64 @@ class CsvReporter(Reporter):
                     ),
                 ]
             )
+
+        statistical = result.statistical_stats
+
+        if statistical is not None:
+            writer.writerow(["statistical", "available", statistical.available])
+
+            for name, metric in statistical.metrics.items():
+                writer.writerow(
+                    [
+                        "statistical_metric",
+                        name,
+                        (
+                            f"sample_size={metric.sample_size};"
+                            f"mean={metric.mean:.4f};"
+                            f"median={metric.median:.4f};"
+                            f"standard_deviation={metric.standard_deviation:.4f};"
+                            f"q1={metric.q1:.4f};"
+                            f"q3={metric.q3:.4f};"
+                            f"iqr={metric.iqr:.4f};"
+                            f"lower_fence={metric.lower_fence:.4f};"
+                            f"upper_fence={metric.upper_fence:.4f}"
+                        ),
+                    ]
+                )
+
+            for anomaly in statistical.anomalies:
+                z_score = "" if anomaly.z_score is None else f"{anomaly.z_score:.4f}"
+
+                observation_time = (
+                    anomaly.observation_time.isoformat()
+                    if anomaly.observation_time
+                    else ""
+                )
+
+                status_code = (
+                    str(anomaly.status_code) if anomaly.status_code is not None else ""
+                )
+
+                writer.writerow(
+                    [
+                        "statistical_anomaly",
+                        f"{anomaly.severity}:{anomaly.metric}",
+                        (
+                            f"scope={anomaly.scope};"
+                            f"key={anomaly.key};"
+                            f"observed={anomaly.observed:.4f};"
+                            f"baseline={anomaly.baseline:.4f};"
+                            f"standard_deviation="
+                            f"{anomaly.standard_deviation:.4f};"
+                            f"z_score={z_score};"
+                            f"method={anomaly.method};"
+                            f"observation_time={observation_time};"
+                            f"path={anomaly.path or ''};"
+                            f"ip_address={anomaly.ip_address or ''};"
+                            f"status_code={status_code}"
+                        ),
+                    ]
+                )
 
         security = result.security_stats
 

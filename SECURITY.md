@@ -6,8 +6,9 @@ Security fixes are generally applied to the latest maintained release of FAK Log
 
 | Version | Supported |
 | ------- | --------- |
-| 0.5.x   | Yes       |
-| < 0.5    | No        |
+| 0.7.x   | Yes       |
+| 0.6.x   | Yes       |
+| < 0.6    | No        |
 
 Support for older versions may be discontinued as the project evolves toward the 1.0 release.
 

@@ -18,6 +18,7 @@ def create_entry(
     status: int,
     size: int,
     timestamp: datetime | None = None,
+    response_time: float | None = None,
 ) -> LogEntry:
     """Create a test log entry."""
     if timestamp is None:
@@ -31,6 +32,7 @@ def create_entry(
         protocol="HTTP/1.1",
         status_code=status,
         response_size=size,
+        response_time_ms=response_time,
     )
 
 
@@ -71,6 +73,8 @@ def test_json_reporter():
     assert data["time"]["requests_per_hour"] == 120.0
     assert data["status_classes"]["2xx"] == 1
     assert data["status_classes"]["4xx"] == 1
+    assert "statistical_anomalies" in data
+    assert data["statistical_anomalies"]["available"] is False
 
 
 def test_csv_reporter():
@@ -117,6 +121,7 @@ def test_csv_reporter():
     assert "traffic,trend,stable" in output
     assert "status_class,2xx,1" in output
     assert "status_class,4xx,1" in output
+    assert "statistical,available,False" in output
 
 
 def test_reporter_factory():
@@ -124,3 +129,46 @@ def test_reporter_factory():
     assert isinstance(get_reporter("json"), JsonReporter)
     assert isinstance(get_reporter("csv"), CsvReporter)
     assert isinstance(get_reporter("terminal"), TerminalReporter)
+
+
+def test_json_reporter_preserves_statistical_anomaly_context():
+    """JSON output should preserve timestamp and request context for anomalies."""
+    start = datetime(2026, 9, 13, 10, 0, tzinfo=timezone.utc)
+    entries = [
+        create_entry(
+            f"10.0.0.{index}",
+            "GET",
+            "/normal",
+            200,
+            100,
+            start + timedelta(seconds=index),
+            100,
+        )
+        for index in range(8)
+    ]
+    entries.append(
+        create_entry(
+            "10.0.0.99",
+            "GET",
+            "/slow",
+            503,
+            1000,
+            start + timedelta(minutes=1),
+            1000,
+        )
+    )
+
+    result = analyze(entries)
+    data = json.loads(JsonReporter().render(result, ReportConfig()))
+    anomalies = data["statistical_anomalies"]["anomalies"]
+
+    latency = next(
+        anomaly
+        for anomaly in anomalies
+        if anomaly["metric"] == "response_time_ms" and anomaly["observed"] == 1000
+    )
+
+    assert latency["observation_time"] == (start + timedelta(minutes=1)).isoformat()
+    assert latency["path"] == "/slow"
+    assert latency["ip_address"] == "10.0.0.99"
+    assert latency["status_code"] == 503

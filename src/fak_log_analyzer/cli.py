@@ -7,7 +7,7 @@ from fak_log_analyzer.parser import parse_file
 from fak_log_analyzer.reporters import get_reporter
 from fak_log_analyzer.reporters.terminal import TerminalReporter
 
-VERSION = "0.6.0"
+VERSION = "0.7.0"
 
 
 def create_parser() -> argparse.ArgumentParser:

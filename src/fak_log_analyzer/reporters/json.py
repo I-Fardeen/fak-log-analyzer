@@ -61,6 +61,56 @@ class JsonReporter(Reporter):
             for path, stats in list(result.path_performance.items())[: config.top_paths]
         }
 
+        statistical = result.statistical_stats
+        if statistical is not None:
+            statistical_data = {
+                "available": statistical.available,
+                "metrics": {
+                    name: {
+                        "sample_size": metric.sample_size,
+                        "mean": metric.mean,
+                        "median": metric.median,
+                        "standard_deviation": metric.standard_deviation,
+                        "q1": metric.q1,
+                        "q3": metric.q3,
+                        "iqr": metric.iqr,
+                        "lower_fence": metric.lower_fence,
+                        "upper_fence": metric.upper_fence,
+                    }
+                    for name, metric in statistical.metrics.items()
+                },
+                "anomalies": [
+                    {
+                        "metric": anomaly.metric,
+                        "scope": anomaly.scope,
+                        "key": anomaly.key,
+                        "observed": anomaly.observed,
+                        "baseline": anomaly.baseline,
+                        "standard_deviation": anomaly.standard_deviation,
+                        "z_score": anomaly.z_score,
+                        "lower_fence": anomaly.lower_fence,
+                        "upper_fence": anomaly.upper_fence,
+                        "method": anomaly.method,
+                        "severity": anomaly.severity,
+                        "observation_time": (
+                            anomaly.observation_time.isoformat()
+                            if anomaly.observation_time
+                            else None
+                        ),
+                        "path": anomaly.path,
+                        "ip_address": anomaly.ip_address,
+                        "status_code": anomaly.status_code,
+                    }
+                    for anomaly in statistical.anomalies
+                ],
+            }
+        else:
+            statistical_data = {
+                "available": False,
+                "metrics": {},
+                "anomalies": [],
+            }
+
         security = result.security_stats
 
         security_data = {
@@ -139,6 +189,7 @@ class JsonReporter(Reporter):
             },
             "performance": performance_data,
             "performance_hotspots": path_performance,
+            "statistical_anomalies": statistical_data,
             "security": security_data,
             "methods": dict(result.method_counts),
             "status_codes": {

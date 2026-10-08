@@ -232,6 +232,34 @@ Control the number displayed with:
 --top-paths N
 ```
 
+## Statistical Anomaly Detection
+
+FAK Log Analyzer v0.7.0 includes deterministic statistical anomaly detection
+using the standard library.
+
+The statistical layer establishes baselines when enough observations are
+available and evaluates:
+
+- Requests per minute
+- Error rate per minute
+- Requests per client IP
+- Requests per endpoint
+- Response time in milliseconds
+
+Two complementary methods are used:
+
+- **Z-score** — measures how far an observation is from the mean in standard
+  deviation units.
+- **IQR / Tukey fences** — identifies observations outside the interquartile
+  range and provides a robust outlier signal.
+
+Each reported anomaly includes evidence such as the observed value, baseline
+mean, standard deviation, Z-score when available, IQR fences, detection method,
+severity, and request context where applicable.
+
+Statistical anomalies are signals for investigation and operational triage.
+They do not establish malicious activity or prove an incident.
+
 ## Supported Log Format
 
 The current parser supports Apache/Common Log Format.

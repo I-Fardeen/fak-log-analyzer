@@ -191,6 +191,96 @@ class TerminalReporter(Reporter):
 
         console.print(performance_hotspots)
 
+        # ------------------------------------------------------------------
+        # Statistical Anomaly Detection
+        # ------------------------------------------------------------------
+
+        statistical = result.statistical_stats
+        statistical_table = Table(title="Statistical Anomaly Detection")
+        statistical_table.add_column("Metric")
+        statistical_table.add_column("Sample", justify="right")
+        statistical_table.add_column("Mean", justify="right")
+        statistical_table.add_column("Std Dev", justify="right")
+        statistical_table.add_column("IQR", justify="right")
+
+        if statistical is None or not statistical.available:
+            statistical_table.add_row(
+                "Statistical baseline", "N/A", "N/A", "N/A", "N/A"
+            )
+        else:
+            for name, metric in statistical.metrics.items():
+                statistical_table.add_row(
+                    name,
+                    str(metric.sample_size),
+                    f"{metric.mean:.2f}",
+                    f"{metric.standard_deviation:.2f}",
+                    f"{metric.iqr:.2f}",
+                )
+
+        console.print(statistical_table)
+
+        anomaly_table = Table(title="Statistical Anomalies")
+        anomaly_table.add_column("Severity")
+        anomaly_table.add_column("Metric")
+        anomaly_table.add_column("Reference")
+        anomaly_table.add_column("Observed", justify="right")
+        anomaly_table.add_column("Baseline", justify="right")
+        anomaly_table.add_column("Z-score", justify="right")
+        anomaly_table.add_column("Context")
+        anomaly_table.add_column("Method")
+
+        if statistical is not None and statistical.anomalies:
+            for anomaly in statistical.anomalies[: config.top_paths * 2]:
+                if (
+                    anomaly.metric
+                    in {
+                        "requests_per_minute",
+                        "error_rate_per_minute",
+                        "response_time_ms",
+                    }
+                    and anomaly.observation_time is not None
+                ):
+                    reference = anomaly.observation_time.isoformat()
+                else:
+                    reference = anomaly.key
+
+                context_parts = []
+                if anomaly.path is not None:
+                    context_parts.append(f"path={anomaly.path}")
+                if anomaly.ip_address is not None:
+                    context_parts.append(f"ip={anomaly.ip_address}")
+                if anomaly.status_code is not None:
+                    context_parts.append(f"status={anomaly.status_code}")
+                context = "; ".join(context_parts) if context_parts else "-"
+
+                anomaly_table.add_row(
+                    anomaly.severity,
+                    anomaly.metric,
+                    reference,
+                    f"{anomaly.observed:.2f}",
+                    f"{anomaly.baseline:.2f}",
+                    (
+                        f"{anomaly.z_score:.2f}"
+                        if anomaly.z_score is not None
+                        else "N/A"
+                    ),
+                    context,
+                    anomaly.method,
+                )
+        else:
+            anomaly_table.add_row(
+                "INFO",
+                "statistical",
+                "No statistical anomalies detected",
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+            )
+
+        console.print(anomaly_table)
+
         methods = Table(title="HTTP Methods")
         methods.add_column("Method")
         methods.add_column("Requests", justify="right")

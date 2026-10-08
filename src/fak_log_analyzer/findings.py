@@ -295,8 +295,9 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
         )
 
     # Per-IP request bursts use the same one-minute buckets as the traffic
-    # analysis. This is intentionally a fixed heuristic until v0.7 adds
-    # statistical baselines and anomaly scoring.
+    # analysis. Statistical anomaly detection is implemented separately
+    # so these security heuristics remain transparent and independently
+    # interpretable.
     for ip, (timestamp, count) in sorted(
         security.peak_requests_per_minute_by_ip.items(),
         key=lambda item: item[1][1],
@@ -320,6 +321,67 @@ def generate_findings(result: AnalysisResult) -> list[Finding]:
                 ),
             )
         )
+
+    # ------------------------------------------------------------------
+    # Statistical anomaly intelligence
+    # ------------------------------------------------------------------
+
+    statistical = result.statistical_stats
+
+    if statistical is not None and statistical.available:
+        for anomaly in statistical.anomalies:
+            severity = Severity.HIGH if anomaly.severity == "HIGH" else Severity.MEDIUM
+
+            if anomaly.metric == "requests_per_minute":
+                title = "Statistical traffic anomaly"
+                description = "request volume in a time bucket"
+            elif anomaly.metric == "error_rate_per_minute":
+                title = "Statistical error-rate anomaly"
+                description = "error rate in a time bucket"
+            elif anomaly.metric == "response_time_ms":
+                title = "Statistical latency anomaly"
+                description = "response time"
+            elif anomaly.metric == "requests_per_ip":
+                title = "Statistical client-volume anomaly"
+                description = "request volume for a client IP"
+            else:
+                title = "Statistical endpoint-volume anomaly"
+                description = "request volume for an endpoint"
+
+            z_score = (
+                f"; z-score {anomaly.z_score:.2f}"
+                if anomaly.z_score is not None
+                else ""
+            )
+
+            context_parts = []
+            if anomaly.path is not None:
+                context_parts.append(f"path {anomaly.path}")
+            if anomaly.ip_address is not None:
+                context_parts.append(f"IP {anomaly.ip_address}")
+            if anomaly.status_code is not None:
+                context_parts.append(f"status {anomaly.status_code}")
+
+            context = f" ({', '.join(context_parts)})" if context_parts else ""
+            reference = (
+                anomaly.observation_time.isoformat()
+                if anomaly.observation_time is not None
+                else anomaly.key
+            )
+
+            findings.append(
+                Finding(
+                    severity=severity,
+                    category="statistical_anomaly",
+                    title=title,
+                    message=(
+                        f"{reference} has an unusual {description}: "
+                        f"observed {anomaly.observed:.2f} versus baseline "
+                        f"mean {anomaly.baseline:.2f}{context} "
+                        f"(method: {anomaly.method}{z_score})."
+                    ),
+                )
+            )
 
     # ------------------------------------------------------------------
     # Traffic trend
