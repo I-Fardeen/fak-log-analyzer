@@ -3,6 +3,7 @@
 from fak_log_analyzer.reporters.base import Reporter
 from fak_log_analyzer.reporters.csv import CsvReporter
 from fak_log_analyzer.reporters.json import JsonReporter
+from fak_log_analyzer.reporters.markdown import MarkdownReporter
 from fak_log_analyzer.reporters.terminal import TerminalReporter
 
 
@@ -13,6 +14,7 @@ def get_reporter(format_name: str) -> Reporter:
         "terminal": TerminalReporter,
         "json": JsonReporter,
         "csv": CsvReporter,
+        "markdown": MarkdownReporter,
     }
 
     try:
