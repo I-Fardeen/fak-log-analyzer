@@ -1,0 +1,37 @@
+name: Update Contributors
+
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "17 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-contributors:
+    name: Update README Contributors
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate contributors list
+        uses: akhilmhdh/contributors-readme-action@v2.3.11
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          readme_path: README.md
+          image_size: 100
+          columns_per_row: 6
+          use_username: false
+          collaborators: direct
+          commit_message: "docs: update contributors list"
+          pr_title_on_protected: "docs: update contributors list"
