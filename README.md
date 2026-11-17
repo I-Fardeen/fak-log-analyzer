@@ -802,6 +802,11 @@ pytest
 
 Contributions are welcome.
 
+Thanks to all our contributors:
+
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
+
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and contribution instructions.
 
 ## Security
