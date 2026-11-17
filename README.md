@@ -43,7 +43,8 @@ FAK Log Analyzer parses Apache/Common Log Format logs and produces useful reques
 * Terminal reports with Rich
 * JSON output
 * CSV output
-* Save JSON or CSV reports to files
+* Markdown output
+* Save JSON, CSV, or Markdown reports to files
 * Clean command-line error handling
 
 ## Requirements
@@ -110,7 +111,7 @@ By default, the analyzer displays a human-readable terminal report containing:
 
 ```text
 usage: fak-log-analyzer [-h] [--top-ips TOP_IPS] [--top-paths TOP_PATHS]
-                        [--format {terminal,json,csv}] [--output OUTPUT]
+                        [--format {terminal,json,csv,markdown}] [--output OUTPUT]
                         logfile
 ```
 
@@ -127,8 +128,8 @@ usage: fak-log-analyzer [-h] [--top-ips TOP_IPS] [--top-paths TOP_PATHS]
 | `-h`, `--help`    | Show the command-line help message                            | —          |
 | `--top-ips N`     | Display the top N IP addresses                                | `10`       |
 | `--top-paths N`   | Display the top N requested paths                             | `10`       |
-| `--format FORMAT` | Select the output format: `terminal`, `json`, or `csv`        | `terminal` |
-| `--output FILE`   | Write JSON or CSV output to a file instead of standard output | —          |
+| `--format FORMAT` | Select the output format: `terminal`, `json`, `csv`, or `markdown` | `terminal` |
+| `--output FILE`   | Write JSON, CSV, or Markdown output to a file instead of standard output | —          |
 
 ### Examples
 
@@ -178,7 +179,21 @@ fak-log-analyzer access.log \
     --output report.csv
 ```
 
-> **Note:** The terminal format is intended for interactive display and cannot be written to a file using `--output`. Use JSON or CSV when a report needs to be saved or processed by another tool.
+#### Generate Markdown output
+
+```bash
+fak-log-analyzer access.log --format markdown
+```
+
+#### Save a Markdown report
+
+```bash
+fak-log-analyzer access.log \
+    --format markdown \
+    --output report.md
+```
+
+> **Note:** The terminal format is intended for interactive display and cannot be written to a file using `--output`. Use JSON, CSV, or Markdown when a report needs to be saved or processed by another tool.
 
 ## Supported Log Formats
 
@@ -513,6 +528,26 @@ CSV output contains categorized records for:
 * Per-path performance
 * Operational findings
 
+### Markdown
+
+Designed for portable, human-readable reports that render on GitHub, in VS Code, and in documentation tools:
+
+```bash
+fak-log-analyzer access.log --format markdown
+```
+
+The Markdown report contains the same analysis sections as the terminal report, rendered as Markdown headings and tables:
+
+* Summary statistics
+* Time and traffic analysis
+* HTTP methods and status codes
+* Top IP addresses and requested paths
+* Error hotspots
+* Performance analysis and hotspots
+* Statistical anomaly detection
+* Security intelligence
+* Operational findings
+
 ## Project Structure
 
 ```text
@@ -535,6 +570,7 @@ fak-log-analyzer/
 │           ├── base.py
 │           ├── csv.py
 │           ├── json.py
+│           ├── markdown.py
 │           └── terminal.py
 ├── tests/
 │   ├── sample.log
@@ -596,7 +632,8 @@ Reporter Factory
    │
    ├── Terminal Reporter
    ├── JSON Reporter
-   └── CSV Reporter
+   ├── CSV Reporter
+   └── Markdown Reporter
 ```
 
 The parser converts raw log lines into structured `LogEntry` objects.
@@ -672,6 +709,7 @@ The project includes a comprehensive automated test suite covering:
 * Statistical JSON and CSV reporting
 * JSON reporting
 * CSV reporting
+* Markdown reporting
 * Reporter factory behavior
 
 Run all tests with:
