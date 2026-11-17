@@ -805,6 +805,26 @@ Contributions are welcome.
 Thanks to all our contributors:
 
 <!-- readme: contributors -start -->
+<table>
+	<tbody>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/I-Fardeen">
+                    <img src="https://avatars.githubusercontent.com/u/79132148?v=4" width="100;" alt="I-Fardeen"/>
+                    <br />
+                    <sub><b>Fardeen A Khan</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/Utkarsh636">
+                    <img src="https://avatars.githubusercontent.com/u/153265979?v=4" width="100;" alt="Utkarsh636"/>
+                    <br />
+                    <sub><b>Utkarsh636</b></sub>
+                </a>
+            </td>
+		</tr>
+	<tbody>
+</table>
 <!-- readme: contributors -end -->
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and contribution instructions.
