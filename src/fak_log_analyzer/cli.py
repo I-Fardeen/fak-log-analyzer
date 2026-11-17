@@ -50,7 +50,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--format",
-        choices=["terminal", "json", "csv"],
+        choices=["terminal", "json", "csv", "markdown"],
         default="terminal",
         help=(
             "Output format: terminal for interactive output, "

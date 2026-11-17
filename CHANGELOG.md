@@ -8,7 +8,9 @@ The format follows the general principles of [Keep a Changelog](https://keepacha
 
 ### Added
 
-- Future changes will be documented here.
+- Added Markdown output format (`--format markdown`).
+- Added `MarkdownReporter` class rendering all analysis sections as Markdown tables.
+- Added Markdown reporter tests.
 
 ## [0.7.0] - 2026-10-08
 

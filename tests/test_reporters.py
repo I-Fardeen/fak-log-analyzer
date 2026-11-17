@@ -8,6 +8,7 @@ from fak_log_analyzer.models import LogEntry, ReportConfig
 from fak_log_analyzer.reporters import get_reporter
 from fak_log_analyzer.reporters.csv import CsvReporter
 from fak_log_analyzer.reporters.json import JsonReporter
+from fak_log_analyzer.reporters.markdown import MarkdownReporter
 from fak_log_analyzer.reporters.terminal import TerminalReporter
 
 
@@ -129,6 +130,7 @@ def test_reporter_factory():
     assert isinstance(get_reporter("json"), JsonReporter)
     assert isinstance(get_reporter("csv"), CsvReporter)
     assert isinstance(get_reporter("terminal"), TerminalReporter)
+    assert isinstance(get_reporter("markdown"), MarkdownReporter)
 
 
 def test_json_reporter_preserves_statistical_anomaly_context():
@@ -172,3 +174,36 @@ def test_json_reporter_preserves_statistical_anomaly_context():
     assert latency["path"] == "/slow"
     assert latency["ip_address"] == "10.0.0.99"
     assert latency["status_code"] == 503
+
+
+def test_markdown_reporter():
+    """Markdown reporter should produce valid Markdown output."""
+    start = datetime(2026, 9, 11, 10, 0, tzinfo=timezone.utc)
+
+    result = analyze(
+        [
+            create_entry("10.0.0.1", "GET", "/", 200, 100, start),
+            create_entry(
+                "10.0.0.2",
+                "POST",
+                "/login",
+                401,
+                200,
+                start + timedelta(minutes=1),
+            ),
+        ]
+    )
+
+    reporter = MarkdownReporter()
+    output = reporter.render(result, ReportConfig())
+
+    assert "# FAK Log Analysis Report" in output
+    assert "## Summary" in output
+    assert "| Total Requests | 2 |" in output
+    assert "| Error Count | 1 |" in output
+    assert "10.0.0.1" in output
+    assert "10.0.0.2" in output
+    assert "## Findings" in output
+    assert "## Time Analysis" in output
+    assert "## Traffic" in output
+    assert "## Status Codes" in output
