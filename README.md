@@ -815,6 +815,13 @@ List of all contributors to this project:
                     <sub><b>Fardeen A Khan</b></sub>
                 </a>
             </td>
+			<td align="center">
+                <a href="https://github.com/saranshbhatnagar2006-ui">
+                    <img src="https://avatars.githubusercontent.com/u/234335772?v=4" width="100;" alt="saranshbhatnagar2006-ui"/>
+                    <br />
+                    <sub><b>Saransh Bhatnagar</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/Utkarsh636">
                     <img src="https://avatars.githubusercontent.com/u/153265979?v=4" width="100;" alt="Utkarsh636"/>
