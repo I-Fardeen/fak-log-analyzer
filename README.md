@@ -802,7 +802,7 @@ pytest
 
 Contributions are welcome.
 
-Thanks to all our contributors:
+List of all contributors to this project:
 
 <!-- readme: contributors -start -->
 <table>
